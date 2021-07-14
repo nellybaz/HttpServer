@@ -25,7 +25,7 @@ namespace HttpServer.Library
         string streamData = GetStreamData(client.GetStream());
         client.Close();
         Console.WriteLine(streamData);
-
+        server.Stop();
       }
       catch (SocketException e)
       {

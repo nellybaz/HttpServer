@@ -1,0 +1,15 @@
+/Users/nbassey/Development/owc/http-server/HttpServer.Library/bin/Debug/net5.0/HttpServer.Library.deps.json
+/Users/nbassey/Development/owc/http-server/HttpServer.Library/bin/Debug/net5.0/HttpServer.Library.runtimeconfig.json
+/Users/nbassey/Development/owc/http-server/HttpServer.Library/bin/Debug/net5.0/HttpServer.Library.runtimeconfig.dev.json
+/Users/nbassey/Development/owc/http-server/HttpServer.Library/bin/Debug/net5.0/HttpServer.Library.dll
+/Users/nbassey/Development/owc/http-server/HttpServer.Library/bin/Debug/net5.0/ref/HttpServer.Library.dll
+/Users/nbassey/Development/owc/http-server/HttpServer.Library/bin/Debug/net5.0/HttpServer.Library.pdb
+/Users/nbassey/Development/owc/http-server/HttpServer.Library/obj/Debug/net5.0/HttpServer.Library.csproj.AssemblyReference.cache
+/Users/nbassey/Development/owc/http-server/HttpServer.Library/obj/Debug/net5.0/HttpServer.Library.GeneratedMSBuildEditorConfig.editorconfig
+/Users/nbassey/Development/owc/http-server/HttpServer.Library/obj/Debug/net5.0/HttpServer.Library.AssemblyInfoInputs.cache
+/Users/nbassey/Development/owc/http-server/HttpServer.Library/obj/Debug/net5.0/HttpServer.Library.AssemblyInfo.cs
+/Users/nbassey/Development/owc/http-server/HttpServer.Library/obj/Debug/net5.0/HttpServer.Library.csproj.CoreCompileInputs.cache
+/Users/nbassey/Development/owc/http-server/HttpServer.Library/obj/Debug/net5.0/HttpServer.Library.dll
+/Users/nbassey/Development/owc/http-server/HttpServer.Library/obj/Debug/net5.0/ref/HttpServer.Library.dll
+/Users/nbassey/Development/owc/http-server/HttpServer.Library/obj/Debug/net5.0/HttpServer.Library.pdb
+/Users/nbassey/Development/owc/http-server/HttpServer.Library/obj/Debug/net5.0/HttpServer.Library.genruntimeconfig.cache

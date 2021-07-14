@@ -9,16 +9,6 @@ namespace HttpServer.Test
 {
   public class HttpServerTest
   {
-    [Fact(Skip = "Connecting to actual sockets affects it")]
-    public void Run_Writes_Message_When_called()
-    {
-      int port = 5000;
-      var output = new StringWriter();
-      Console.SetOut(output);
-
-      //   new HttpServerCore().Run(port);
-      Assert.Equal("Server listening on port: " + port + "\n", output.ToString());
-    }
 
     [Fact]
     public void Run_Writes_Message_On_TCP_Connection()
@@ -45,11 +35,11 @@ namespace HttpServer.Test
       Assert.Equal("Server listening on port: " + port + "\nTCP connection received\n", output.ToString());
     }
 
-    [Fact(Skip = "")]
+    [Fact]
     public void GetStreamData_Returns_Correct_Message_From_Strem()
     {
 
-      string message = "GET, hi there";
+      string message = "GET, hi there\n";
 
       Stream clientStream = new MemoryStream();
       Byte[] byteMessage = System.Text.Encoding.ASCII.GetBytes(message);
@@ -58,6 +48,24 @@ namespace HttpServer.Test
       clientStream.Seek(0, SeekOrigin.Begin);
       string expectedMessage = new HttpServerCore().GetStreamData(clientStream);
       Assert.Equal(message, expectedMessage);
+    }
+
+    [Fact]
+    public void HandleRequest_Returns_OK_Response_For_Valid_Get_Request(){
+
+      Stream clientStream = new MemoryStream();
+      Byte[] byteMessage = System.Text.Encoding.ASCII.GetBytes(Request.SampleGet());
+
+      clientStream.Write(byteMessage, 0, byteMessage.Length);
+      var httpServerCore = new HttpServerCore();
+    
+      httpServerCore.HandleRequest(clientStream);
+
+      clientStream.Seek(0, SeekOrigin.Begin);
+      string actual = httpServerCore.GetStreamData(clientStream);
+      string expected = Request.SampleGet() + "OK\n";
+      Assert.Equal(expected, actual);
+      
     }
   }
 }

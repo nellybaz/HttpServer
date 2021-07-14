@@ -22,9 +22,9 @@ namespace HttpServer.Library
         TcpClient client = server.AcceptTcpClient();
         Console.WriteLine("TCP connection received");
 
-        string streamData = GetStreamData(client.GetStream());
+        var stream = client.GetStream();
+        HandleRequest(stream);
         client.Close();
-        Console.WriteLine(streamData);
         server.Stop();
       }
       catch (SocketException e)
@@ -40,16 +40,19 @@ namespace HttpServer.Library
 
     public string GetStreamData(Stream stream)
     {
-      int i;
-      Byte[] bytes = new Byte[256];
-      string data = null;
-      while ((i = stream.Read(bytes, 0, bytes.Length)) != 0)
+      String data = null;
+      StreamReader reader = new StreamReader(stream);
+      while (reader.Peek() != -1)
       {
-        data = System.Text.Encoding.ASCII.GetString(bytes, 0, i);
-        Console.WriteLine("Received: {0}", data);
+        data += reader.ReadLine() + "\n";
       }
       return data;
+    }
 
+    public void HandleRequest(Stream stream)
+    {
+      Byte[] message = System.Text.Encoding.ASCII.GetBytes("OK");
+      stream.Write(message, 0, message.Length);
     }
   }
 }

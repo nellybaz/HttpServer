@@ -30,8 +30,10 @@ namespace HttpServer.Test
       var output = new StringWriter();
       Console.SetOut(output);
 
-      new HttpServerCore().Run(port);
+      Thread tcpThread = new Thread(()=> {new HttpServerCore().Run(port);});
+      tcpThread.Start();
 
+      Thread.Sleep(2000);
       TcpClient client = new TcpClient(server, port);
 
       NetworkStream clientStream = client.GetStream();

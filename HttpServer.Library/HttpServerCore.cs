@@ -8,7 +8,7 @@ namespace HttpServer.Library
 {
   public class HttpServerCore
   {
-    public async Task Run(int port)
+    public void Run(int port)
     {
       TcpListener server = null;
 
@@ -19,7 +19,7 @@ namespace HttpServer.Library
         server = new TcpListener(IPAddress.Parse("127.0.0.1"), port);
         server.Start();
 
-        TcpClient client = await server.AcceptTcpClientAsync();
+        TcpClient client = server.AcceptTcpClient();
         Console.WriteLine("TCP connection received");
 
         string streamData = GetStreamData(client.GetStream());

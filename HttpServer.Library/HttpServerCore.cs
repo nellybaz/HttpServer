@@ -19,12 +19,15 @@ namespace HttpServer.Library
         server = new TcpListener(IPAddress.Parse("127.0.0.1"), port);
         server.Start();
 
-        TcpClient client = server.AcceptTcpClient();
-        Console.WriteLine("TCP connection received");
+        while (true)
+        {
+          TcpClient client = server.AcceptTcpClient();
+          Console.WriteLine("TCP connection received");
 
-        var stream = client.GetStream();
-        HandleRequest(stream);
-        client.Close();
+          var stream = client.GetStream();
+          HandleRequest(stream);
+          client.Close();
+        }
         server.Stop();
       }
       catch (SocketException e)

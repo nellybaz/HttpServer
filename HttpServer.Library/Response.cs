@@ -8,8 +8,9 @@ namespace HttpServer.Library
     Stream stream;
     public void Send(string message)
     {
-      WriteHeader();
+      
       Byte[] messageByte = System.Text.Encoding.ASCII.GetBytes(message);
+      WriteHeader(message.Length);
       stream.Write(messageByte, 0, messageByte.Length);
     }
 
@@ -18,7 +19,7 @@ namespace HttpServer.Library
     {
       stream = _stream;
     }
-    private void WriteHeader()
+    private void WriteHeader(int contentLength)
     {
       string status = "200 OK";
       string version = "HTTP/1.1";
@@ -29,7 +30,7 @@ namespace HttpServer.Library
       headers = headers + "Server: cx1193719-b\r\n";
       headers = headers + "Content-Type: " + mime + "\r\n";
       headers = headers + "Accept-Ranges: bytes\r\n";
-      headers = headers + "Content-Length: " + 50 + "\r\n\r\n";
+      headers = headers + "Content-Length: " + contentLength + "\r\n\r\n";
 
       Byte[] headersByte = System.Text.Encoding.ASCII.GetBytes(headers);
       stream.Write(headersByte, 0, headersByte.Length);

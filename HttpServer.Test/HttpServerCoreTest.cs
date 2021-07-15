@@ -20,7 +20,7 @@ namespace HttpServer.Test
       var output = new StringWriter();
       Console.SetOut(output);
 
-      Thread tcpThread = new Thread(()=> {new HttpServerCore().Run(port);});
+      Thread tcpThread = new Thread(() => { new HttpServerCore().Run(port); });
       tcpThread.Start();
 
       Thread.Sleep(2000);
@@ -51,21 +51,22 @@ namespace HttpServer.Test
     }
 
     [Fact]
-    public void HandleRequest_Returns_OK_Response_For_Valid_Get_Request(){
+    public void HandleRequest_Returns_OK_Response_For_Valid_Get_Request()
+    {
 
       Stream clientStream = new MemoryStream();
       Byte[] byteMessage = System.Text.Encoding.ASCII.GetBytes(Request.SampleGet());
 
       clientStream.Write(byteMessage, 0, byteMessage.Length);
       var httpServerCore = new HttpServerCore();
-    
+
       httpServerCore.HandleRequest(clientStream);
 
       clientStream.Seek(0, SeekOrigin.Begin);
       string actual = httpServerCore.GetStreamData(clientStream);
-      string expected = Request.SampleGet() + "OK\n";
-      Assert.Equal(expected, actual);
-      
+      string status = "200 OK";
+      Assert.Contains(status, actual);
+
     }
   }
 }

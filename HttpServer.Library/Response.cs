@@ -8,6 +8,7 @@ namespace HttpServer.Library
     Stream stream;
     public void Send(string message)
     {
+      WriteHeader();
       Byte[] messageByte = System.Text.Encoding.ASCII.GetBytes(message);
       stream.Write(messageByte, 0, messageByte.Length);
     }

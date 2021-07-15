@@ -51,8 +51,9 @@ namespace HttpServer.Library
 
     public void HandleRequest(Stream stream)
     {
-      Byte[] message = System.Text.Encoding.ASCII.GetBytes("OK");
-      stream.Write(message, 0, message.Length);
+      // Byte[] message = System.Text.Encoding.ASCII.GetBytes("OK");
+      // stream.Write(message, 0, message.Length);
+      new Response(stream).Send("OK");
     }
   }
 }

@@ -23,7 +23,7 @@ namespace HttpServer.Test
 
 
       clientStream.Seek(0, SeekOrigin.Begin);
-      string actual = new HttpServerCore().GetStreamData(clientStream);
+      string actual = HttpServerCore.GetStreamData(clientStream);
       Assert.Contains(status, actual);
       Assert.Contains(version, actual);
       Assert.Contains(mime, actual);

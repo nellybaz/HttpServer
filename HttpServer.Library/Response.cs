@@ -23,12 +23,13 @@ namespace HttpServer.Library
     {
       string status = "200 OK";
       string version = "HTTP/1.1";
-      string mime = "text/html";
+      string mime = "text/plain; ";
+      string encoding = "charset=utf-8";
 
       string headers = "";
       headers = headers + version + " " + status + "\r\n";
       headers = headers + "Server: cx1193719-b\r\n";
-      headers = headers + "Content-Type: " + mime + "\r\n";
+      headers = headers + "Content-Type: " + mime + encoding + "\r\n";
       headers = headers + "Accept-Ranges: bytes\r\n";
       headers = headers + "Content-Length: " + contentLength + "\r\n\r\n";
 

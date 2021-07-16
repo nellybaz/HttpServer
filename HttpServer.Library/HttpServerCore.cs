@@ -41,8 +41,9 @@ namespace HttpServer.Library
 
     }
 
-    public string GetStreamData(Stream stream)
+    public static string GetStreamData(Stream stream)
     {
+
       String data = null;
       StreamReader reader = new StreamReader(stream);
       while (reader.Peek() != -1)
@@ -56,7 +57,8 @@ namespace HttpServer.Library
     {
       // Byte[] message = System.Text.Encoding.ASCII.GetBytes("OK");
       // stream.Write(message, 0, message.Length);
-      new Response(stream).Send("OK");
+      var request = new Request(stream);
+      new Response(stream).Send("public" + request.Url);
     }
   }
 }

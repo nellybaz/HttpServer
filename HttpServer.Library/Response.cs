@@ -6,6 +6,7 @@ namespace HttpServer.Library
   public class Response
   {
     Stream stream;
+    string status;
     public void Send(string message)
     {
       
@@ -15,13 +16,14 @@ namespace HttpServer.Library
     }
 
 
-    public Response(Stream _stream)
+    public Response(Stream _stream, string _status)
     {
       stream = _stream;
+      status = _status;
     }
     private void WriteHeader(int contentLength)
     {
-      string status = "200 OK";
+      string status = this.status;
       string version = "HTTP/1.1";
       string mime = "text/plain; ";
       string encoding = "charset=utf-8";

@@ -14,7 +14,7 @@ namespace HttpServer.Test
 
       string route = "/home";
       Stream clientStream = new MemoryStream();
-      Byte[] byteMessage = System.Text.Encoding.ASCII.GetBytes(Request.SampleGet(route));
+      Byte[] byteMessage = System.Text.Encoding.ASCII.GetBytes(RequestFixtures.SampleGet(route));
 
 
       clientStream.Write(byteMessage, 0, byteMessage.Length);

@@ -27,7 +27,7 @@ namespace HttpServer.Test
       TcpClient client = new TcpClient(server, port);
 
       NetworkStream clientStream = client.GetStream();
-      Byte[] message = System.Text.Encoding.ASCII.GetBytes(Request.SampleGet());
+      Byte[] message = System.Text.Encoding.ASCII.GetBytes(RequestFixtures.SampleGet());
 
       clientStream.Write(message, 0, message.Length);
       clientStream.Close();
@@ -55,7 +55,7 @@ namespace HttpServer.Test
     {
 
       Stream clientStream = new MemoryStream();
-      Byte[] byteMessage = System.Text.Encoding.ASCII.GetBytes(Request.SampleGet());
+      Byte[] byteMessage = System.Text.Encoding.ASCII.GetBytes(RequestFixtures.SampleGet());
 
       clientStream.Write(byteMessage, 0, byteMessage.Length);
 
@@ -68,6 +68,24 @@ namespace HttpServer.Test
       string status = "200 OK";
       Assert.Contains(status, actual);
 
+    }
+
+    [Fact]
+    public void HandleRequest_Returns_404_When_Path_Not_Found()
+    {
+      Stream clientStream = new MemoryStream(256);
+      Byte[] byteMessage = System.Text.Encoding.ASCII.GetBytes(RequestFixtures.SampleGet("/not-found"));
+
+      clientStream.Write(byteMessage, 0, byteMessage.Length);
+
+      var httpServerCore = new HttpServerCore();
+
+      httpServerCore.HandleRequest(clientStream);
+
+      clientStream.Seek(0, SeekOrigin.Begin);
+      string actual = HttpServerCore.GetStreamData(clientStream);
+      string status = "404 Not found";
+      Assert.Contains(status, actual);
     }
   }
 }

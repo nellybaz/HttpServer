@@ -11,11 +11,11 @@ namespace HttpServer.Test
     public void Send_Writes_Valid_Headers_With_Message_To_The_Stream()
     {
       Stream clientStream = new MemoryStream();
-      Byte[] byteMessage = System.Text.Encoding.ASCII.GetBytes(Request.SampleGet());
+      Byte[] byteMessage = System.Text.Encoding.ASCII.GetBytes(RequestFixtures.SampleGet());
 
       clientStream.Write(byteMessage, 0, byteMessage.Length);
       string message = "Ok";
-      new Response(clientStream).Send(message);
+      new Response(clientStream, Status._200).Send(message);
 
       string status = "200 OK";
       string version = "HTTP/1.1";

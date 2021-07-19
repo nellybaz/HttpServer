@@ -3,6 +3,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using System.IO;
+using System.Collections.Generic;
 
 namespace HttpServer.Library
 {
@@ -55,10 +56,25 @@ namespace HttpServer.Library
 
     public void HandleRequest(Stream stream)
     {
-      // Byte[] message = System.Text.Encoding.ASCII.GetBytes("OK");
-      // stream.Write(message, 0, message.Length);
+      var validPath = new Dictionary<string, bool>{
+        {"/", true},
+        {"/file1", true},
+        {"/file2", true}
+      };
+
+      if(stream== null){
+        throw new Exception("Stream is null");
+      }
       var request = new Request(stream);
-      new Response(stream).Send("public" + request.Url);
+      string status = Status._200;
+      string message = "public" + request.Url;
+      bool pathIsInvalid = !validPath.ContainsKey(request.Url);
+      if (pathIsInvalid)
+      {
+        status = Status._404;
+        message = "Page not found";
+      }
+      new Response(stream, status).Send(message);
     }
   }
 }

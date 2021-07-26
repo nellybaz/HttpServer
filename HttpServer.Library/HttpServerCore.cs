@@ -64,26 +64,32 @@ namespace HttpServer.Library
 
       var request = new Request(stream);
       string status = Status._200;
-
-
-      bool pathIsInvalid = !validPath.ContainsKey(request.Url);
-
       string message = "";
 
-      try
-      {
-        string path = Directory.GetCurrentDirectory() + "/public" + request.Url + ".html";
-        message = File.ReadAllText(path);
-      }
-      catch (System.Exception _)
-      {
-        message = "Page not found";
-      }
+      bool pathIsInvalid = !validPath.ContainsKey(request.Url);
 
       if (pathIsInvalid)
       {
         status = Status._404;
         message = "Page not found";
+      }
+      else
+      {
+        try
+        {
+          string fileForUrl = request.Url;
+          if (request.Url == "/")
+          {
+            fileForUrl = "/index";
+          }
+          string path = Directory.GetCurrentDirectory() + "/public" + fileForUrl + ".html";
+          message = File.ReadAllText(path);
+        }
+        catch (System.Exception _)
+        {
+          message = "Page not found";
+        }
+
       }
       new Response(stream, status).Send(message);
     }

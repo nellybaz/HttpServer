@@ -68,9 +68,17 @@ namespace HttpServer.Library
 
       bool pathIsInvalid = !validPath.ContainsKey(request.Url);
 
-      string path = Directory.GetCurrentDirectory() + "/public" + request.Url + ".html";
+      string message = "";
 
-      string message = File.ReadAllText(path);
+      try
+      {
+        string path = Directory.GetCurrentDirectory() + "/public" + request.Url + ".html";
+        message = File.ReadAllText(path);
+      }
+      catch (System.Exception _)
+      {
+        message = "Page not found";
+      }
 
       if (pathIsInvalid)
       {

@@ -56,10 +56,13 @@ namespace HttpServer.Library
 
     public void HandleRequest(Stream stream)
     {
-      var validPath = new Dictionary<string, bool>{
-        {"/", true},
-        {"/file1", true},
-        {"/file2", true}
+
+      // dataFromBytes | tokens [path, method] -> Request ->  verifyPath | Route -> handleMethods -> response -> middlewares -> bytesFromData
+
+      var validPath = new Dictionary<string, string>{
+        {"/", "/index.html"},
+        {"/file1", "/file1.html"},
+        {"/file2", "/file2.html"},
       };
 
       var request = new Request(stream);
@@ -68,29 +71,26 @@ namespace HttpServer.Library
 
       bool pathIsInvalid = !validPath.ContainsKey(request.Url);
 
-      if (pathIsInvalid)
+      try
       {
-        status = Status._404;
-        message = "Page not found";
-      }
-      else
-      {
-        try
+        if (pathIsInvalid)
         {
-          string fileForUrl = request.Url;
-          if (request.Url == "/")
-          {
-            fileForUrl = "/index";
-          }
-          string path = Directory.GetCurrentDirectory() + "/public" + fileForUrl + ".html";
+          string path = Directory.GetCurrentDirectory() + "/public" + "/404.html";
+          status = Status._404;
           message = File.ReadAllText(path);
         }
-        catch (System.Exception _)
+        else
         {
-          message = "Page not found";
+          string path = Directory.GetCurrentDirectory() + "/public" + validPath[request.Url];
+          message = File.ReadAllText(path);
         }
-
       }
+      catch (System.Exception _)
+      {
+        status = Status._404;
+        message = "<html><h2>Page not found</h2></html>";
+      }
+
       new Response(stream, status).Send(message);
     }
   }

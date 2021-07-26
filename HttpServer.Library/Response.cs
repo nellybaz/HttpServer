@@ -25,7 +25,7 @@ namespace HttpServer.Library
     {
       string status = this.status;
       string version = "HTTP/1.1";
-      string mime = "text/plain; ";
+      string mime = "text/html; ";
       string encoding = "charset=utf-8";
 
       string headers = "";

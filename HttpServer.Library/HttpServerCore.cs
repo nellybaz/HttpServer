@@ -62,13 +62,16 @@ namespace HttpServer.Library
         {"/file2", true}
       };
 
-      if(stream== null){
-        throw new Exception("Stream is null");
-      }
       var request = new Request(stream);
       string status = Status._200;
-      string message = "public" + request.Url;
+
+
       bool pathIsInvalid = !validPath.ContainsKey(request.Url);
+
+      string path = Directory.GetCurrentDirectory() + "/public" + request.Url + ".html";
+
+      string message = File.ReadAllText(path);
+
       if (pathIsInvalid)
       {
         status = Status._404;

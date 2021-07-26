@@ -77,9 +77,11 @@ namespace HttpServer.Test
       Byte[] byteMessage = System.Text.Encoding.ASCII.GetBytes(RequestFixtures.SampleGet("/not-found"));
 
       clientStream.Write(byteMessage, 0, byteMessage.Length);
-
+      clientStream.Seek(0, SeekOrigin.Begin);
       var httpServerCore = new HttpServerCore();
-
+      string actual0 = HttpServerCore.GetStreamData(clientStream);
+      Assert.Contains("GET", actual0);
+      clientStream.Seek(0, SeekOrigin.Begin);
       httpServerCore.HandleRequest(clientStream);
 
       clientStream.Seek(0, SeekOrigin.Begin);

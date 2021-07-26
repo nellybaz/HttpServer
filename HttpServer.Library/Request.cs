@@ -8,7 +8,8 @@ namespace HttpServer.Library
     public string Url;
     public Request(Stream stream)
     {
-      string[] tokens = HttpServerCore.GetStreamData(stream).Split(" ");
+      string streamData = HttpServerCore.GetStreamData(stream);
+      string[] tokens = streamData.Split(" ");
       Url = tokens[1];
     }
 

@@ -65,7 +65,9 @@ namespace HttpServer.Library
         {"/file2", "/file2.html"},
       };
 
-      var request = new Request(stream);
+      string dataFromStream = GetStreamData(stream);
+      // Console.WriteLine(dataFromStream);
+      var request = new Request(dataFromStream);
       string status = Status._200;
       string message = "";
 

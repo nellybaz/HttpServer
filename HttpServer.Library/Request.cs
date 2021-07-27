@@ -6,10 +6,11 @@ namespace HttpServer.Library
   public class Request
   {
     public string Url;
-    public Request(Stream stream)
+    public string Method;
+    public Request(string dataFromStream)
     {
-      string streamData = HttpServerCore.GetStreamData(stream);
-      string[] tokens = streamData.Split(" ");
+      string[] tokens = dataFromStream.Split(" ");
+      Method = tokens[0];
       Url = tokens[1];
     }
 

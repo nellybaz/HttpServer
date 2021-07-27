@@ -7,27 +7,27 @@ namespace HttpServer.Test
 {
   public class ResponseTest
   {
-    [Fact(Skip = "Writing to stream no more a property of response")]
-    public void Send_Writes_Valid_Headers_With_Message_To_The_Stream()
+    [Fact]
+    public void Headers_Formatted_According_To_Standard()
     {
-      Stream clientStream = new MemoryStream();
-      Byte[] byteMessage = System.Text.Encoding.ASCII.GetBytes(RequestFixtures.SampleGet());
-
-      clientStream.Write(byteMessage, 0, byteMessage.Length);
-      string message = "Ok";
-      // new Response(clientStream, StatusCode._200).Send(message);
-
+    //Given
+     Response response = new Response();
+    //When
       string status = "200 OK";
       string version = "HTTP/1.1";
-      string mime = "text/html";
+      string mime = "text/html;";
+      string encoding = "charset=utf-8";
 
+      string headers = "";
+      headers = headers + version + " " + status + "\n";
+      headers = headers + "Server: XHTTPServer\n";
+      headers = headers + "Content-Type: " + mime + " " + encoding + "\n";
+      headers = headers + "Accept-Ranges: bytes\n";
+      headers = headers + "Content-Length: " + "0" + "\n\n";
 
-      clientStream.Seek(0, SeekOrigin.Begin);
-      string actual = HttpServerCore.GetStreamData(clientStream);
-      Assert.Contains(status, actual);
-      Assert.Contains(version, actual);
-      Assert.Contains(mime, actual);
-      Assert.Contains(message, actual);
+    //Then
+    string expected = headers;
+    Assert.Equal(expected, response.Headers);
     }
   }
 }

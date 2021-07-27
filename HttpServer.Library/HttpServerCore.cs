@@ -60,15 +60,15 @@ namespace HttpServer.Library
       // dataFromBytes | tokens [path, method] -> Request ->  verifyPath | Route -> handleMethods -> response -> middlewares -> bytesFromData
 
       var validPath = new Dictionary<string, string>{
-        {"/", "/index.html"},
-        {"/file1", "/file1.html"},
-        {"/file2", "/file2.html"},
+        {"/", "/index"},
+        {"/file1", "/file1"},
+        {"/file2", "/file2"},
       };
 
       string dataFromStream = GetStreamData(stream);
-      // Console.WriteLine(dataFromStream);
-      var request = new Request(dataFromStream);
-      string status = StatusCode._200;
+      Request request = new Request(dataFromStream);
+      Response response = new Response();
+
       string message = "";
 
       bool pathIsInvalid = !validPath.ContainsKey(request.Url);
@@ -78,32 +78,29 @@ namespace HttpServer.Library
         if (pathIsInvalid)
         {
           string path = Directory.GetCurrentDirectory() + "/public" + "/404.html";
-          status = StatusCode._404;
           message = File.ReadAllText(path);
+          response.Mime = MimeTypes.html;
         }
         else
         {
           string path = Directory.GetCurrentDirectory() + "/public" + validPath[request.Url];
           message = File.ReadAllText(path);
+          response.Mime = MimeTypes.plainText;
         }
       }
       catch (System.Exception)
       {
-        status = StatusCode._404;
         message = "<html><h2>Page not found</h2></html>";
       }
 
       Byte[] messageByte = System.Text.Encoding.ASCII.GetBytes(message);
 
-      Response response = new Response();
       response.ContentLength = messageByte.Length;
       string headers = response.Headers;
 
-      // Console.WriteLine(headers);
       Byte[] headersByte = System.Text.Encoding.ASCII.GetBytes(headers);
       stream.Write(headersByte, 0, headersByte.Length);
 
-      
       stream.Write(messageByte, 0, messageByte.Length);
     }
   }

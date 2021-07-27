@@ -24,7 +24,7 @@ namespace HttpServer.Library
       get => _contentLength;
       set => _contentLength = value;
     }
-    
+
     public string Headers{
       get =>$"{_version} {_status}{newLine}Server: {_server}{newLine}Content-Type: {_mime} {_encoding}{newLine}Accept-Ranges: bytes{newLine}Content-Length: {_contentLength}{newLine}{newLine}";
     }
@@ -32,14 +32,6 @@ namespace HttpServer.Library
     private string _version;
     private string _encoding;
     private string _server;
-
-
-    // public Response(string status)
-    // {
-    //   _status = status;
-    //   _mime = "text/html; ";
-    //   _version = "HTTP/1.1";
-    // }
 
     public Response()
     {
@@ -50,22 +42,5 @@ namespace HttpServer.Library
       _contentLength = 0;
       _server = "XHTTPServer";
     }
-    // private void WriteHeader(int contentLength)
-    // {
-    //   string status = this.status;
-    //   string version = "HTTP/1.1";
-    //   string mime = "text/html; ";
-    //   string encoding = "charset=utf-8";
-
-    //   string headers = "";
-    //   headers = headers + version + " " + status + "\r\n";
-    //   headers = headers + "Server: cx1193719-b\r\n";
-    //   headers = headers + "Content-Type: " + mime + " " + encoding + "\r\n";
-    //   headers = headers + "Accept-Ranges: bytes\r\n";
-    //   headers = headers + "Content-Length: " + contentLength + "\r\n\r\n";
-
-    //   Byte[] headersByte = System.Text.Encoding.ASCII.GetBytes(headers);
-    //   stream.Write(headersByte, 0, headersByte.Length);
-    // }
   }
 }

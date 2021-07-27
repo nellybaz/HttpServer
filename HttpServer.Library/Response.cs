@@ -24,15 +24,9 @@ namespace HttpServer.Library
       get => _contentLength;
       set => _contentLength = value;
     }
-
-    private string _headers;
+    
     public string Headers{
-      get => 
-      $@"{_version} {_status}{newLine};
-      Server: {_server}{newLine};
-      Content-Type: {_mime} {_encoding}{newLine};
-      Accept-Ranges: bytes{newLine}
-      Content-Length: {_contentLength}{newLine}{newLine}";
+      get =>$"{_version} {_status}{newLine}Server: {_server}{newLine}Content-Type: {_mime} {_encoding}{newLine}Accept-Ranges: bytes{newLine}Content-Length: {_contentLength}{newLine}{newLine}";
     }
 
     private string _version;

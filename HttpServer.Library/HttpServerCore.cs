@@ -29,7 +29,7 @@ namespace HttpServer.Library
           HandleRequest(stream);
           client.Close();
         }
-        server.Stop();
+        // server.Stop();
       }
       catch (SocketException e)
       {
@@ -87,17 +87,23 @@ namespace HttpServer.Library
           message = File.ReadAllText(path);
         }
       }
-      catch (System.Exception _)
+      catch (System.Exception)
       {
         status = StatusCode._404;
         message = "<html><h2>Page not found</h2></html>";
       }
 
-      string headers = new Response().Headers;
+      Byte[] messageByte = System.Text.Encoding.ASCII.GetBytes(message);
+
+      Response response = new Response();
+      response.ContentLength = messageByte.Length;
+      string headers = response.Headers;
+
+      // Console.WriteLine(headers);
       Byte[] headersByte = System.Text.Encoding.ASCII.GetBytes(headers);
       stream.Write(headersByte, 0, headersByte.Length);
 
-      Byte[] messageByte = System.Text.Encoding.ASCII.GetBytes(message);
+      
       stream.Write(messageByte, 0, messageByte.Length);
     }
   }

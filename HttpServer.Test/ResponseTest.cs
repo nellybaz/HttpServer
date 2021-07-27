@@ -7,7 +7,7 @@ namespace HttpServer.Test
 {
   public class ResponseTest
   {
-    [Fact]
+    [Fact(Skip = "Writing to stream no more a property of response")]
     public void Send_Writes_Valid_Headers_With_Message_To_The_Stream()
     {
       Stream clientStream = new MemoryStream();
@@ -15,7 +15,7 @@ namespace HttpServer.Test
 
       clientStream.Write(byteMessage, 0, byteMessage.Length);
       string message = "Ok";
-      new Response(clientStream, Status._200).Send(message);
+      // new Response(clientStream, StatusCode._200).Send(message);
 
       string status = "200 OK";
       string version = "HTTP/1.1";

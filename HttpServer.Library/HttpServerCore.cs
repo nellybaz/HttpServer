@@ -68,7 +68,7 @@ namespace HttpServer.Library
       string dataFromStream = GetStreamData(stream);
       // Console.WriteLine(dataFromStream);
       var request = new Request(dataFromStream);
-      string status = Status._200;
+      string status = StatusCode._200;
       string message = "";
 
       bool pathIsInvalid = !validPath.ContainsKey(request.Url);
@@ -78,7 +78,7 @@ namespace HttpServer.Library
         if (pathIsInvalid)
         {
           string path = Directory.GetCurrentDirectory() + "/public" + "/404.html";
-          status = Status._404;
+          status = StatusCode._404;
           message = File.ReadAllText(path);
         }
         else
@@ -89,11 +89,16 @@ namespace HttpServer.Library
       }
       catch (System.Exception _)
       {
-        status = Status._404;
+        status = StatusCode._404;
         message = "<html><h2>Page not found</h2></html>";
       }
 
-      new Response(stream, status).Send(message);
+      string headers = new Response().Headers;
+      Byte[] headersByte = System.Text.Encoding.ASCII.GetBytes(headers);
+      stream.Write(headersByte, 0, headersByte.Length);
+
+      Byte[] messageByte = System.Text.Encoding.ASCII.GetBytes(message);
+      stream.Write(messageByte, 0, messageByte.Length);
     }
   }
 }

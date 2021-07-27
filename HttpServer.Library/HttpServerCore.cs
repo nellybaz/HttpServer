@@ -4,6 +4,7 @@ using System.Net.Sockets;
 using System.Threading.Tasks;
 using System.IO;
 using System.Collections.Generic;
+using System.Reflection;
 
 namespace HttpServer.Library
 {
@@ -54,21 +55,13 @@ namespace HttpServer.Library
       return data;
     }
 
-    public void HandleRequest(Stream stream)
+    public string GeMessageFromPath(Request request, Response response)
     {
-
-      // dataFromBytes | tokens [path, method] -> Request ->  verifyPath | Route -> handleMethods -> response -> middlewares -> bytesFromData
-
       var validPath = new Dictionary<string, string>{
         {"/", "/index"},
         {"/file1", "/file1"},
         {"/file2", "/file2"},
       };
-
-      string dataFromStream = GetStreamData(stream);
-      Request request = new Request(dataFromStream);
-      Response response = new Response();
-
       string message = "";
 
       bool pathIsInvalid = !validPath.ContainsKey(request.Url);
@@ -79,29 +72,51 @@ namespace HttpServer.Library
         {
           string path = Directory.GetCurrentDirectory() + "/public" + "/404.html";
           message = File.ReadAllText(path);
-          response.Mime = MimeTypes.html;
+          response.Mime = MimeType.html;
+          response.Status = StatusCode._404;
         }
         else
         {
           string path = Directory.GetCurrentDirectory() + "/public" + validPath[request.Url];
           message = File.ReadAllText(path);
-          response.Mime = MimeTypes.plainText;
+          response.Mime = MimeType.plainText;
         }
       }
-      catch (System.Exception)
+      catch (System.Exception e)
       {
+        Console.WriteLine(e);
         message = "<html><h2>Page not found</h2></html>";
       }
 
-      Byte[] messageByte = System.Text.Encoding.ASCII.GetBytes(message);
+      return message;
+    }
+
+    private Byte[] BytesFromArray(string data)
+    {
+      return System.Text.Encoding.ASCII.GetBytes(data);
+    }
+    public void HandleRequest(Stream stream)
+    {
+
+      // dataFromBytes | tokens [path, method] -> Request ->  verifyPath | Route -> handleMethods -> response -> middlewares -> bytesFromData
+
+      string dataFromStream = GetStreamData(stream);
+      Request request = new Request(dataFromStream);
+      Response response = new Response();
+
+      string message = GeMessageFromPath(request, response);
+
+      Byte[] messageByte = BytesFromArray(message);
 
       response.ContentLength = messageByte.Length;
-      string headers = response.Headers;
 
-      Byte[] headersByte = System.Text.Encoding.ASCII.GetBytes(headers);
+      Byte[] headersByte = BytesFromArray(response.Headers);
       stream.Write(headersByte, 0, headersByte.Length);
 
-      stream.Write(messageByte, 0, messageByte.Length);
+      if (request.Method != RequesetMethod.HEAD)
+      {
+        stream.Write(messageByte, 0, messageByte.Length);
+      }
     }
   }
 }

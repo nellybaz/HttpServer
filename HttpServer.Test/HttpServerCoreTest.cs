@@ -89,5 +89,39 @@ namespace HttpServer.Test
       string status = "404 Not found";
       Assert.Contains(status, actual);
     }
+
+    [Fact]
+    public void GeMessageFromPath_Returns_Message_In_File()
+    {
+      //Given
+      var httpServerCore = new HttpServerCore();
+      var request = new Request(RequestFixtures.SampleGet("/"));
+      var response = new Response();
+      //When
+
+      string message = httpServerCore.GeMessageFromPath(request, response);
+      //Then
+      Assert.Equal("OK", message);
+    }
+
+    [Fact]
+    public void HandleRequest_Does_Not_Write_Body_To_Stream_For_Head_Method()
+    {
+      Stream clientStream = new MemoryStream(256);
+      Byte[] byteMessage = System.Text.Encoding.ASCII.GetBytes(RequestFixtures.SampleHead("/file1"));
+
+      clientStream.Write(byteMessage, 0, byteMessage.Length);
+      clientStream.Seek(0, SeekOrigin.Begin);
+      var httpServerCore = new HttpServerCore();
+      string actual0 = HttpServerCore.GetStreamData(clientStream);
+      Assert.Contains("HEAD", actual0);
+      clientStream.Seek(0, SeekOrigin.Begin);
+      httpServerCore.HandleRequest(clientStream);
+
+      clientStream.Seek(0, SeekOrigin.Begin);
+      string actual = HttpServerCore.GetStreamData(clientStream);
+      string status = "file1 contents";
+      Assert.DoesNotContain(status, actual);
+    }
   }
 }

@@ -124,5 +124,25 @@ namespace HttpServer.Test
       string status = "file1 contents";
       Assert.DoesNotContain(status, actual);
     }
+
+     [Fact]
+    public void Header_Has_Allow_Section_For_Options_Method()
+    {
+      Stream clientStream = new MemoryStream(256);
+      Byte[] byteMessage = System.Text.Encoding.ASCII.GetBytes(RequestFixtures.SampleOptions("/file1"));
+
+      clientStream.Write(byteMessage, 0, byteMessage.Length);
+      clientStream.Seek(0, SeekOrigin.Begin);
+      var httpServerCore = new HttpServerCore();
+      string actual0 = HttpServerCore.GetStreamData(clientStream);
+      Assert.Contains("OPTIONS", actual0);
+      clientStream.Seek(0, SeekOrigin.Begin);
+      httpServerCore.HandleRequest(clientStream);
+
+      clientStream.Seek(0, SeekOrigin.Begin);
+      string actual = HttpServerCore.GetStreamData(clientStream);
+      string status = "Allow: GET, HEAD, OPTIONS, PUT, DELETE";
+      Assert.Contains(status, actual);
+    }
   }
 }

@@ -10,7 +10,7 @@ namespace HttpServer.Library
 {
   public class HttpServerCore
   {
-    private string _staticPath;
+    private string _staticPath = "/Users/nbassey/Development/owc/http-server/public";
 
     string StaticPath
     {
@@ -71,12 +71,16 @@ namespace HttpServer.Library
 
     public string GeMessageFromPath(Request request, Response response)
     {
+      if(request.Url == "/"){
+        return "OK";
+      }
       string message = "";
       try
       {
         string path = this._staticPath + request.Url;
         message = File.ReadAllText(path);
         response.Mime = MimeType.plainText;
+        request.IsPath = true;
       }
       catch (System.Exception)
       {
@@ -125,6 +129,8 @@ namespace HttpServer.Library
 
     public void Write()
     {
+      if(request.IsPath) response.Methods = "GET, HEAD, OPTIONS, PUT, DELETE";
+
       stream.Write(response.HeadersByte, 0, response.HeadersByte.Length);
       if (request.Method != RequesetMethod.HEAD)
       {

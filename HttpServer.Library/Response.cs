@@ -7,41 +7,56 @@ namespace HttpServer.Library
   {
     private string newLine = Environment.NewLine;
     private string _status;
-    public string Status{
+    public string Status
+    {
       get => _status;
       set => _status = value;
     }
-    
+
 
     private string _mime;
-    public string Mime{
+    public string Mime
+    {
       get => _mime;
       set => _mime = value;
     }
 
+    private string _methods;
+    public string Methods
+    {
+      get => _methods;
+      set => _methods = value;
+    }
+
     private string _body;
-    public string Body{
+    public string Body
+    {
       get => _body;
     }
 
-    public Byte[] BodyBytes{
+    public Byte[] BodyBytes
+    {
       get => System.Text.Encoding.ASCII.GetBytes(_body);
     }
 
     private int _contentLength;
-    public int ContentLength{
+    public int ContentLength
+    {
       get => _contentLength;
       set => _contentLength = value;
     }
 
-    public string Headers{
-      get =>$"{_version} {_status}{newLine}Server: {_server}{newLine}Content-Type: {_mime} {_encoding}{newLine}Accept-Ranges: bytes{newLine}Content-Length: {_contentLength}{newLine}{newLine}";
+    public string Headers
+    {
+      get =>
+      _methods == null ? $"{_version} {_status}{newLine}Server: {_server}{newLine}Content-Type: {_mime} {_encoding}{newLine}Accept-Ranges: bytes{newLine}Content-Length: {_contentLength}{newLine}{newLine}" : $"{_version} {_status}{newLine}Allow: {_methods}{newLine}Server: {_server}{newLine}Content-Type: {_mime} {_encoding}{newLine}Accept-Ranges: bytes{newLine}Content-Length: {_contentLength}{newLine}{newLine}";
     }
 
-     public Byte[] HeadersByte{
+    public Byte[] HeadersByte
+    {
       get => System.Text.Encoding.ASCII.GetBytes(Headers);
     }
-    
+
 
     private string _version;
     private string _encoding;
@@ -57,7 +72,8 @@ namespace HttpServer.Library
       _server = "XHTTPServer";
     }
 
-    public void SetBody(string message){
+    public void SetBody(string message)
+    {
       _body = message;
       _contentLength = Body.Length;
     }

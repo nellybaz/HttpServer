@@ -7,6 +7,7 @@ namespace HttpServer.Library
   {
     public string Url;
     public string Method;
+    public bool IsPath;
     public Request(string dataFromStream)
     {
       string[] tokens = dataFromStream.Split(" ");

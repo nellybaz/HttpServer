@@ -10,14 +10,12 @@ namespace HttpServer.Library
 {
   public class HttpServerCore
   {
-    private string _staticPath = "/Users/nbassey/Development/owc/http-server/public";
+    private string _staticPath;
 
     string StaticPath
     {
       get => _staticPath;
     }
-
-    public HttpServerCore() { }
     public HttpServerCore(string staticPath)
     {
       this._staticPath = staticPath;
@@ -69,10 +67,12 @@ namespace HttpServer.Library
       return data;
     }
 
-    public string GeMessageFromPath(Request request, Response response)
+    public void ProcessPublicDirectory(Request request, Response response)
     {
-      if(request.Url == "/"){
-        return "OK";
+      if (request.Url == "/")
+      {
+        response.SetBody("");
+        return;
       }
       string message = "";
       try
@@ -85,11 +85,10 @@ namespace HttpServer.Library
       catch (System.Exception)
       {
         message = "<html><h2>Page not found</h2></html>";
-        response.Mime = MimeType.html;
         response.Status = StatusCode._404;
       }
 
-      return message;
+      response.SetBody(message);
     }
 
     private Byte[] BytesFromArray(string data)
@@ -101,13 +100,19 @@ namespace HttpServer.Library
 
       // dataFromBytes | tokens [path, method] -> Request ->  verifyPath | Route -> handleMethods -> response -> middlewares -> bytesFromData
 
+      List<Action<Request, Response>> stages = new List<Action<Request, Response>>();
+      stages.Add(ProcessPublicDirectory);
+
       string dataFromStream = GetStreamData(stream);
       Request request = new Request(dataFromStream);
       Response response = new Response();
-      HttpServerWorker httpServerWorker = new HttpServerWorker(stream, request, response);
 
-      string message = GeMessageFromPath(request, response);
-      response.SetBody(message);
+      foreach (var action in stages)
+      {
+        action(request, response);
+      }
+
+      HttpServerWorker httpServerWorker = new HttpServerWorker(stream, request, response);
       httpServerWorker.Write();
 
     }
@@ -129,7 +134,7 @@ namespace HttpServer.Library
 
     public void Write()
     {
-      if(request.IsPath) response.Methods = "GET, HEAD, OPTIONS, PUT, DELETE";
+      if (request.IsPath) response.Methods = "GET, HEAD, OPTIONS, PUT, DELETE";
 
       stream.Write(response.HeadersByte, 0, response.HeadersByte.Length);
       if (request.Method != RequesetMethod.HEAD)

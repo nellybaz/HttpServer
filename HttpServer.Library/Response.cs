@@ -75,7 +75,7 @@ namespace HttpServer.Library
     public void SetBody(string message)
     {
       _body = message;
-      _contentLength = Body.Length;
+      _contentLength = BodyBytes.Length;
     }
   }
 }

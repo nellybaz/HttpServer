@@ -10,6 +10,8 @@ namespace HttpServer.Test
   public class HttpServerTest
   {
 
+    string _staticPath = "/Users/nbassey/Development/owc/http-server/public";
+
     [Fact]
     public void Run_Writes_Message_On_TCP_Connection()
     {
@@ -20,7 +22,7 @@ namespace HttpServer.Test
       var output = new StringWriter();
       Console.SetOut(output);
 
-      Thread tcpThread = new Thread(() => { new HttpServerCore().Run(port); });
+      Thread tcpThread = new Thread(() => { new HttpServerCore(_staticPath).Run(port); });
       tcpThread.Start();
 
       Thread.Sleep(1000);
@@ -50,7 +52,7 @@ namespace HttpServer.Test
       Assert.Equal(message, expectedMessage);
     }
 
-    [Fact(Skip = "relook")]
+    [Fact]
     public void HandleRequest_Returns_OK_Response_For_Valid_Get_Request()
     {
 
@@ -59,18 +61,19 @@ namespace HttpServer.Test
 
       clientStream.Write(byteMessage, 0, byteMessage.Length);
 
-      var httpServerCore = new HttpServerCore();
+      var httpServerCore = new HttpServerCore(_staticPath);
       clientStream.Seek(0, SeekOrigin.Begin);
       httpServerCore.HandleRequest(clientStream);
 
 
+      clientStream.Seek(0, SeekOrigin.Begin);
       string actual = HttpServerCore.GetStreamData(clientStream);
-      string status = "200 OK";
+      string status = StatusCode._200;
       Assert.Contains(status, actual);
 
     }
 
-    [Fact(Skip = "Find a way to read right files on test")]
+    [Fact]
     public void HandleRequest_Returns_404_When_Path_Not_Found()
     {
       Stream clientStream = new MemoryStream(256);
@@ -78,7 +81,7 @@ namespace HttpServer.Test
 
       clientStream.Write(byteMessage, 0, byteMessage.Length);
       clientStream.Seek(0, SeekOrigin.Begin);
-      var httpServerCore = new HttpServerCore();
+      var httpServerCore = new HttpServerCore(_staticPath);
       string actual0 = HttpServerCore.GetStreamData(clientStream);
       Assert.Contains("GET", actual0);
       clientStream.Seek(0, SeekOrigin.Begin);
@@ -88,6 +91,8 @@ namespace HttpServer.Test
       string actual = HttpServerCore.GetStreamData(clientStream);
       string status = "404 Not found";
       Assert.Contains(status, actual);
+      Assert.Contains("Page not found", actual);
+      Assert.Contains(MimeType.html, actual);
     }
 
     [Fact]
@@ -100,9 +105,9 @@ namespace HttpServer.Test
       var response = new Response();
       //When
 
-      string message = httpServerCore.GeMessageFromPath(request, response);
+      httpServerCore.ProcessPublicDirectory(request, response);
       //Then
-      Assert.Equal("file1 contents", message);
+      Assert.Equal("file1 contents", response.Body);
     }
 
     [Fact]
@@ -113,7 +118,7 @@ namespace HttpServer.Test
 
       clientStream.Write(byteMessage, 0, byteMessage.Length);
       clientStream.Seek(0, SeekOrigin.Begin);
-      var httpServerCore = new HttpServerCore();
+      var httpServerCore = new HttpServerCore(_staticPath);
       string actual0 = HttpServerCore.GetStreamData(clientStream);
       Assert.Contains("HEAD", actual0);
       clientStream.Seek(0, SeekOrigin.Begin);
@@ -125,7 +130,7 @@ namespace HttpServer.Test
       Assert.DoesNotContain(status, actual);
     }
 
-     [Fact]
+    [Fact]
     public void Header_Has_Allow_Section_For_Options_Method()
     {
       Stream clientStream = new MemoryStream(256);
@@ -133,7 +138,7 @@ namespace HttpServer.Test
 
       clientStream.Write(byteMessage, 0, byteMessage.Length);
       clientStream.Seek(0, SeekOrigin.Begin);
-      var httpServerCore = new HttpServerCore();
+      var httpServerCore = new HttpServerCore(_staticPath);
       string actual0 = HttpServerCore.GetStreamData(clientStream);
       Assert.Contains("OPTIONS", actual0);
       clientStream.Seek(0, SeekOrigin.Begin);
@@ -143,6 +148,16 @@ namespace HttpServer.Test
       string actual = HttpServerCore.GetStreamData(clientStream);
       string status = "Allow: GET, HEAD, OPTIONS, PUT, DELETE";
       Assert.Contains(status, actual);
+    }
+
+    [Fact]
+    public void ProcessRoute_Sets_IsPath_True_For_Valid_Path()
+    {
+      //Given
+
+      //When
+
+      //Then
     }
   }
 }

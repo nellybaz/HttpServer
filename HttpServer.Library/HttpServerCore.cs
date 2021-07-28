@@ -10,6 +10,20 @@ namespace HttpServer.Library
 {
   public class HttpServerCore
   {
+    private string _staticPath;
+
+    string StaticPath
+    {
+      get => _staticPath;
+    }
+
+    public HttpServerCore() { }
+    public HttpServerCore(string staticPath)
+    {
+      this._staticPath = staticPath;
+    }
+
+
     public void Run(int port)
     {
       TcpListener server = null;
@@ -57,35 +71,18 @@ namespace HttpServer.Library
 
     public string GeMessageFromPath(Request request, Response response)
     {
-      var validPath = new Dictionary<string, string>{
-        {"/", "/index"},
-        {"/file1", "/file1"},
-        {"/file2", "/file2"},
-      };
       string message = "";
-
-      bool pathIsInvalid = !validPath.ContainsKey(request.Url);
-
       try
       {
-        if (pathIsInvalid)
-        {
-          string path = Directory.GetCurrentDirectory() + "/public" + "/404.html";
-          message = File.ReadAllText(path);
-          response.Mime = MimeType.html;
-          response.Status = StatusCode._404;
-        }
-        else
-        {
-          string path = Directory.GetCurrentDirectory() + "/public" + validPath[request.Url];
-          message = File.ReadAllText(path);
-          response.Mime = MimeType.plainText;
-        }
+        string path = this._staticPath + request.Url;
+        message = File.ReadAllText(path);
+        response.Mime = MimeType.plainText;
       }
-      catch (System.Exception e)
+      catch (System.Exception)
       {
-        Console.WriteLine(e);
         message = "<html><h2>Page not found</h2></html>";
+        response.Mime = MimeType.html;
+        response.Status = StatusCode._404;
       }
 
       return message;
@@ -121,7 +118,7 @@ namespace HttpServer.Library
 
     public HttpServerWorker(Stream stream, Request request, Response response)
     {
-      this.stream =  stream;
+      this.stream = stream;
       this.request = request;
       this.response = response;
     }

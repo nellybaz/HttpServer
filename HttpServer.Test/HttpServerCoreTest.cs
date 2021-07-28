@@ -23,7 +23,7 @@ namespace HttpServer.Test
       Thread tcpThread = new Thread(() => { new HttpServerCore().Run(port); });
       tcpThread.Start();
 
-      Thread.Sleep(2000);
+      Thread.Sleep(1000);
       TcpClient client = new TcpClient(server, port);
 
       NetworkStream clientStream = client.GetStream();
@@ -32,7 +32,7 @@ namespace HttpServer.Test
       clientStream.Write(message, 0, message.Length);
       clientStream.Close();
 
-      Assert.Equal("Server listening on port: " + port + "\nTCP connection received\n", output.ToString());
+      Assert.Contains("Server listening on port: " + port + "\nTCP connection received\n", output.ToString());
     }
 
     [Fact]
@@ -94,14 +94,15 @@ namespace HttpServer.Test
     public void GeMessageFromPath_Returns_Message_In_File()
     {
       //Given
-      var httpServerCore = new HttpServerCore();
-      var request = new Request(RequestFixtures.SampleGet("/"));
+      var staticPath = "/Users/nbassey/Development/owc/http-server/public";
+      var httpServerCore = new HttpServerCore(staticPath);
+      var request = new Request(RequestFixtures.SampleGet("/file1"));
       var response = new Response();
       //When
 
       string message = httpServerCore.GeMessageFromPath(request, response);
       //Then
-      Assert.Equal("OK", message);
+      Assert.Equal("file1 contents", message);
     }
 
     [Fact]

@@ -19,6 +19,12 @@ namespace HttpServer.Library
       set => _mime = value;
     }
 
+    private string _body;
+    public string Body{
+      get => _body;
+      set => _body = value;
+    }
+
     private int _contentLength;
     public int ContentLength{
       get => _contentLength;
@@ -27,6 +33,10 @@ namespace HttpServer.Library
 
     public string Headers{
       get =>$"{_version} {_status}{newLine}Server: {_server}{newLine}Content-Type: {_mime} {_encoding}{newLine}Accept-Ranges: bytes{newLine}Content-Length: {_contentLength}{newLine}{newLine}";
+    }
+
+    public Byte[] BodyBytes{
+      get => System.Text.Encoding.ASCII.GetBytes(_body);
     }
 
     private string _version;

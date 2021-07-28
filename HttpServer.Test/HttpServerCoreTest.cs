@@ -92,7 +92,7 @@ namespace HttpServer.Test
       string status = "404 Not found";
       Assert.Contains(status, actual);
       Assert.Contains("Page not found", actual);
-      Assert.Contains(MimeType.html, actual);
+      Assert.Contains(MimeType.Html, actual);
     }
 
     [Fact]
@@ -154,14 +154,30 @@ namespace HttpServer.Test
     public void ProcessMethod_Sets_Response_Methods_For_Options_Request_Method()
     {
       //Given
-        string requestData = RequestFixtures.SampleOptions("/file1");
-        var request = new Request(requestData);
-        var response = new Response();
+      string requestData = RequestFixtures.SampleOptions("/file1");
+      var request = new Request(requestData);
+      var response = new Response();
       //When
-        new HttpServerCore(_staticPath).ProcessMethods(request, response);
+      new HttpServerCore(_staticPath).ProcessMethods(request, response);
       //Then
       string expected = "Allow: GET, HEAD, OPTIONS, PUT, DELETE";
       Assert.Contains(expected, response.Headers);
+    }
+
+    [Fact]
+    public void ProcessProtectedPath_Sets_Response_Methods_For_Options_Request_Method()
+    {
+      //Given
+      string requestData = RequestFixtures.SampleOptions("/logs");
+      var request = new Request(requestData);
+      var response = new Response();
+      //When
+      new HttpServerCore(_staticPath).ProcessRoutes(request, response);
+      //Then
+      string expected = "Allow: GET, HEAD, OPTIONS";
+      string unexpectedMethods = "PUT, DELETE";
+      Assert.Contains(expected, response.Headers);
+      Assert.DoesNotContain(unexpectedMethods, response.Headers);
     }
   }
 }

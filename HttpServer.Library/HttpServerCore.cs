@@ -69,17 +69,14 @@ namespace HttpServer.Library
 
     public void ProcessPublicDirectory(Request request, Response response)
     {
-      if (request.Url == "/")
-      {
-        response.SetBody("");
-        return;
-      }
+      response.SetBody("");
+      if (request.Url == "/") return;
       string message = "";
       try
       {
         string path = this._staticPath + request.Url;
         message = File.ReadAllText(path);
-        response.Mime = MimeType.plainText;
+        response.Mime = MimeType.PlainText;
         request.IsPath = true;
       }
       catch (System.Exception)
@@ -100,18 +97,16 @@ namespace HttpServer.Library
 
       // dataFromBytes | tokens [path, method] -> Request ->  verifyPath | Route -> handleMethods -> response -> middlewares -> bytesFromData
 
-      List<Action<Request, Response>> stages = new List<Action<Request, Response>>();
-      stages.Add(ProcessPublicDirectory);
-      stages.Add(ProcessMethods);
+      List<Action<Request, Response>> middlewares = new List<Action<Request, Response>>();
+      middlewares.Add(ProcessPublicDirectory);
+      middlewares.Add(ProcessMethods);
+      middlewares.Add(ProcessRoutes);
 
       string dataFromStream = GetStreamData(stream);
       Request request = new Request(dataFromStream);
       Response response = new Response();
 
-      foreach (var action in stages)
-      {
-        action(request, response);
-      }
+      ProcessMiddleWares(middlewares, request, response);
 
       HttpServerWorker httpServerWorker = new HttpServerWorker(stream, request, response);
       httpServerWorker.Write();
@@ -120,11 +115,38 @@ namespace HttpServer.Library
 
     public void ProcessMethods(Request request, Response response)
     {
-      if (request.Method == RequesetMethod.OPTIONS){
+      if (request.Method == RequesetMethod.OPTIONS)
+      {
         response.Methods = "GET, HEAD, OPTIONS, PUT, DELETE";
         response.Status = StatusCode._200;
       }
       if (request.Method == RequesetMethod.HEAD) response.SetBody("");
+    }
+
+    public void ProcessMiddleWares(List<Action<Request, Response>> middlewares, Request request, Response response)
+    {
+      foreach (var action in middlewares)
+      {
+        action(request, response);
+      }
+    }
+
+    public void ProcessRoutes(Request request, Response response)
+    {
+      var protectedPath = new Dictionary<String, String>();
+      protectedPath.Add("/logs", "GET, HEAD, OPTIONS");
+
+      if (request.Method == RequesetMethod.OPTIONS && protectedPath.ContainsKey(request.Url))
+      {
+        response.Methods = protectedPath[request.Url];
+        response.Status = StatusCode._200;
+      }
+
+      if (request.Url == "/" && request.Method == RequesetMethod.GET)
+      {
+        string body = "<html><a href='http://localhost:5000/file1'>file1</a></html>";
+        response.SetBody(body);
+      }
     }
   }
 

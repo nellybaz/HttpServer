@@ -22,7 +22,10 @@ namespace HttpServer.Library
     private string _body;
     public string Body{
       get => _body;
-      set => _body = value;
+    }
+
+    public Byte[] BodyBytes{
+      get => System.Text.Encoding.ASCII.GetBytes(_body);
     }
 
     private int _contentLength;
@@ -35,9 +38,10 @@ namespace HttpServer.Library
       get =>$"{_version} {_status}{newLine}Server: {_server}{newLine}Content-Type: {_mime} {_encoding}{newLine}Accept-Ranges: bytes{newLine}Content-Length: {_contentLength}{newLine}{newLine}";
     }
 
-    public Byte[] BodyBytes{
-      get => System.Text.Encoding.ASCII.GetBytes(_body);
+     public Byte[] HeadersByte{
+      get => System.Text.Encoding.ASCII.GetBytes(Headers);
     }
+    
 
     private string _version;
     private string _encoding;
@@ -51,6 +55,11 @@ namespace HttpServer.Library
       _encoding = "charset=utf-8";
       _contentLength = 0;
       _server = "XHTTPServer";
+    }
+
+    public void SetBody(string message){
+      _body = message;
+      _contentLength = Body.Length;
     }
   }
 }

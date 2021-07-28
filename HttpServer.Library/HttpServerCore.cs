@@ -103,20 +103,37 @@ namespace HttpServer.Library
       string dataFromStream = GetStreamData(stream);
       Request request = new Request(dataFromStream);
       Response response = new Response();
+      HttpServerWorker httpServerWorker = new HttpServerWorker(stream, request, response);
 
       string message = GeMessageFromPath(request, response);
+      response.SetBody(message);
+      httpServerWorker.Write();
 
-      Byte[] messageByte = BytesFromArray(message);
+    }
+  }
 
-      response.ContentLength = messageByte.Length;
+  class HttpServerWorker
+  {
+    private Stream stream;
+    public Request request;
 
-      Byte[] headersByte = BytesFromArray(response.Headers);
-      stream.Write(headersByte, 0, headersByte.Length);
+    public Response response;
 
+    public HttpServerWorker(Stream stream, Request request, Response response)
+    {
+      this.stream =  stream;
+      this.request = request;
+      this.response = response;
+    }
+
+    public void Write()
+    {
+      stream.Write(response.HeadersByte, 0, response.HeadersByte.Length);
       if (request.Method != RequesetMethod.HEAD)
       {
-        stream.Write(messageByte, 0, messageByte.Length);
+        stream.Write(response.BodyBytes, 0, response.BodyBytes.Length);
       }
     }
+
   }
 }

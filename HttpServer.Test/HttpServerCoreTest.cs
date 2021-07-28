@@ -151,13 +151,17 @@ namespace HttpServer.Test
     }
 
     [Fact]
-    public void ProcessRoute_Sets_IsPath_True_For_Valid_Path()
+    public void ProcessMethod_Sets_Response_Methods_For_Options_Request_Method()
     {
       //Given
-
+        string requestData = RequestFixtures.SampleOptions("/file1");
+        var request = new Request(requestData);
+        var response = new Response();
       //When
-
+        new HttpServerCore(_staticPath).ProcessMethods(request, response);
       //Then
+      string expected = "Allow: GET, HEAD, OPTIONS, PUT, DELETE";
+      Assert.Contains(expected, response.Headers);
     }
   }
 }

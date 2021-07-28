@@ -102,6 +102,7 @@ namespace HttpServer.Library
 
       List<Action<Request, Response>> stages = new List<Action<Request, Response>>();
       stages.Add(ProcessPublicDirectory);
+      stages.Add(ProcessMethods);
 
       string dataFromStream = GetStreamData(stream);
       Request request = new Request(dataFromStream);
@@ -115,6 +116,15 @@ namespace HttpServer.Library
       HttpServerWorker httpServerWorker = new HttpServerWorker(stream, request, response);
       httpServerWorker.Write();
 
+    }
+
+    public void ProcessMethods(Request request, Response response)
+    {
+      if (request.Method == RequesetMethod.OPTIONS){
+        response.Methods = "GET, HEAD, OPTIONS, PUT, DELETE";
+        response.Status = StatusCode._200;
+      }
+      if (request.Method == RequesetMethod.HEAD) response.SetBody("");
     }
   }
 
@@ -134,13 +144,8 @@ namespace HttpServer.Library
 
     public void Write()
     {
-      if (request.IsPath) response.Methods = "GET, HEAD, OPTIONS, PUT, DELETE";
-
       stream.Write(response.HeadersByte, 0, response.HeadersByte.Length);
-      if (request.Method != RequesetMethod.HEAD)
-      {
-        stream.Write(response.BodyBytes, 0, response.BodyBytes.Length);
-      }
+      stream.Write(response.BodyBytes, 0, response.BodyBytes.Length);
     }
 
   }

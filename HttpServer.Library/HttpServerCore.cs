@@ -4,7 +4,7 @@ using System.Net.Sockets;
 using System.Threading.Tasks;
 using System.IO;
 using System.Collections.Generic;
-using System.Reflection;
+using System.Net.Mime;
 
 namespace HttpServer.Library
 {
@@ -76,8 +76,8 @@ namespace HttpServer.Library
       {
         string path = this._staticPath + request.Url;
         message = File.ReadAllText(path);
-        response.Mime = MimeType.PlainText;
-        request.IsPath = true;
+        response.Mime = GetMimeType(request.Url);
+        // request.IsPath = true;
       }
       catch (System.Exception)
       {
@@ -146,6 +146,26 @@ namespace HttpServer.Library
       {
         string body = "<html><a href='http://localhost:5000/file1'>file1</a></html>";
         response.SetBody(body);
+      }
+    }
+
+    public string GetMimeType(string path)
+    {
+      try
+      {
+        string extension = path.Split(".")[1];
+        Dictionary<string, string> mimeHash = new Dictionary<string, string> {
+        { "", MimeType.PlainText },
+        {"jpeg", MimeType.Jpeg},
+        {"html", MimeType.Html},
+        {"txt", MimeType.PlainText}
+        };
+
+        return mimeHash[extension];
+      }
+      catch (System.Exception)
+      {
+        return MimeType.PlainText;
       }
     }
   }

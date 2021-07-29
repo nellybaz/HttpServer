@@ -179,5 +179,22 @@ namespace HttpServer.Test
       Assert.Contains(expected, response.Headers);
       Assert.DoesNotContain(unexpectedMethods, response.Headers);
     }
+
+    [Fact]
+    public void MimeType_Determines_File_Mime_Type()
+    {
+      //Given
+      var httpServerCore = new HttpServerCore(_staticPath);
+
+      //When
+      string fileMimeType = httpServerCore.GetMimeType("file1");
+      string imageMimeType = httpServerCore.GetMimeType("image.jpeg");
+      string htmlMimeType = httpServerCore.GetMimeType("file.html");
+
+      //Then
+      Assert.Equal(MimeType.PlainText, fileMimeType);
+      Assert.Equal(MimeType.Jpeg, imageMimeType);
+      Assert.Equal(MimeType.Html, htmlMimeType);
+    }
   }
 }

@@ -204,32 +204,32 @@ namespace HttpServer.Test
     [Fact]
     public void Post_Method_To_Static_File_Returns_405_Error()
     {
-    //Given
-    var httpServerCore = new HttpServerCore(_staticPath);
-    var response = new Response();
-    var request = new Request(RequestFixtures.Sample("POST", "/file1"));
-    //When
+      //Given
+      var httpServerCore = new HttpServerCore(_staticPath);
+      var response = new Response();
+      var request = new Request(RequestFixtures.Sample("POST", "/file1"));
+      //When
 
-    httpServerCore.ProcessPublicDirectory(request, response);
-    httpServerCore.ProcessPublicDirectoryRestrictions(request, response);
-    
-    //Then
-    Assert.Contains(StatusCode._405, response.Headers);
+      httpServerCore.ProcessPublicDirectory(request, response);
+      httpServerCore.ProcessPublicDirectoryRestrictions(request, response);
+
+      //Then
+      Assert.Contains(StatusCode._405, response.Headers);
     }
 
     [Fact]
     public void Bogus_Request_To_Static_File_Returns_501_Error()
     {
-    //Given
-    var httpServerCore = new HttpServerCore(_staticPath);
-    var response = new Response();
-    var request = new Request(RequestFixtures.Sample("BOGUS", "/file1"));
-    //When
+      //Given
+      var httpServerCore = new HttpServerCore(_staticPath);
+      var response = new Response();
+      var request = new Request(RequestFixtures.Sample("BOGUS", "/file1"));
+      //When
 
-    httpServerCore.AllowedMethod(request, response);
-    
-    //Then
-    Assert.Contains(StatusCode._501, response.Headers);
+      httpServerCore.AllowedMethod(request, response);
+
+      //Then
+      Assert.Contains(StatusCode._501, response.Headers);
     }
   }
 }

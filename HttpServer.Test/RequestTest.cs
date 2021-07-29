@@ -45,5 +45,18 @@ namespace HttpServer.Test
       //Then
       Assert.Equal("GET", actual);
     }
+
+    [Fact]
+    public void Gets_Authorization_Header_Present()
+    {
+    //Given
+    string authorization = "Basic abcdef";
+    
+    //When
+    var request = new Request(RequestFixtures.SampleAuthorized("GET", "/file1", authorization ));
+    
+    //Then
+    Assert.Equal(authorization, request.Authorization);
+    }
   }
 }

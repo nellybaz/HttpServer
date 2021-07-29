@@ -156,6 +156,8 @@ namespace HttpServer.Library
         Dictionary<string, string> mimeHash = new Dictionary<string, string> {
         { "", MimeType.PlainText },
         {"jpeg", MimeType.Jpeg},
+        {"png", MimeType.Png},
+        {"gif", MimeType.Gif},
         {"html", MimeType.Html},
         {"txt", MimeType.PlainText}
         };

@@ -190,11 +190,15 @@ namespace HttpServer.Test
       string fileMimeType = httpServerCore.GetMimeType("file1");
       string imageMimeType = httpServerCore.GetMimeType("image.jpeg");
       string htmlMimeType = httpServerCore.GetMimeType("file.html");
+      string pngMimeType = httpServerCore.GetMimeType("file.png");
+      string gifMimeType = httpServerCore.GetMimeType("file.gif");
 
       //Then
       Assert.Equal(MimeType.PlainText, fileMimeType);
       Assert.Equal(MimeType.Jpeg, imageMimeType);
       Assert.Equal(MimeType.Html, htmlMimeType);
+      Assert.Equal(MimeType.Png, pngMimeType);
+      Assert.Equal(MimeType.Gif, gifMimeType);
     }
   }
 }

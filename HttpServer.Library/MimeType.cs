@@ -7,6 +7,7 @@ namespace HttpServer.Library
 
     public static readonly string Jpeg = "image/jpeg";
     public static readonly string Png = "image/png";
+    public static readonly string Gif = "image/gif";
   }
 
   // public enum MimeType{

@@ -71,21 +71,20 @@ namespace HttpServer.Library
     {
       response.SetBody("");
       if (request.Url == "/") return;
-      string message = "";
       try
       {
         string path = this._staticPath + request.Url;
-        message = File.ReadAllText(path);
+        Byte[] byteData = File.ReadAllBytes(path);
+        response.SetBody(byteData);
         response.Mime = GetMimeType(request.Url);
         // request.IsPath = true;
       }
       catch (System.Exception)
       {
-        message = "<html><h2>Page not found</h2></html>";
+        string message = "<html><h2>Page not found</h2></html>";
+        response.SetBody(message);
         response.Status = StatusCode._404;
-      }
-
-      response.SetBody(message);
+      } 
     }
 
     private Byte[] BytesFromArray(string data)

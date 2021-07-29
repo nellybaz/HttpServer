@@ -34,9 +34,10 @@ namespace HttpServer.Library
       get => _body;
     }
 
+    private Byte[] _bodyByte;
     public Byte[] BodyBytes
     {
-      get => System.Text.Encoding.ASCII.GetBytes(_body);
+      get => _bodyByte;
     }
 
     private int _contentLength;
@@ -75,7 +76,14 @@ namespace HttpServer.Library
     public void SetBody(string message)
     {
       _body = message;
+      _bodyByte = System.Text.Encoding.ASCII.GetBytes(_body);
       _contentLength = BodyBytes.Length;
+    }
+    public void SetBody(Byte[] messageByte)
+    {
+      _bodyByte = messageByte;
+      _body = System.Text.Encoding.ASCII.GetString(messageByte);
+      _contentLength = messageByte.Length;
     }
   }
 }

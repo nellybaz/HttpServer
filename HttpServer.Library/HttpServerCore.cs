@@ -77,7 +77,7 @@ namespace HttpServer.Library
         Byte[] byteData = File.ReadAllBytes(path);
         response.SetBody(byteData);
         response.Mime = GetMimeType(request.Url);
-        // request.IsPath = true;
+        request.IsPath = true;
       }
       catch (System.Exception)
       {
@@ -167,6 +167,14 @@ namespace HttpServer.Library
       catch (System.Exception)
       {
         return MimeType.PlainText;
+      }
+    }
+
+    public void ProcessPublicDirectoryRestrictions(Request request, Response response)
+    {
+      if(request.IsPath && request.Method == RequesetMethod.POST){
+        response.Status = StatusCode._405;
+        response.SetBody("");
       }
     }
   }

@@ -89,7 +89,7 @@ namespace HttpServer.Test
 
       clientStream.Seek(0, SeekOrigin.Begin);
       string actual = HttpServerCore.GetStreamData(clientStream);
-      string status = "404 Not found";
+      string status = "404 Not Found";
       Assert.Contains(status, actual);
       Assert.Contains("Page not found", actual);
       Assert.Contains(MimeType.Html, actual);
@@ -199,6 +199,22 @@ namespace HttpServer.Test
       Assert.Equal(MimeType.Html, htmlMimeType);
       Assert.Equal(MimeType.Png, pngMimeType);
       Assert.Equal(MimeType.Gif, gifMimeType);
+    }
+
+    [Fact]
+    public void Post_Method_To_Static_File_Returns_405_Error()
+    {
+    //Given
+    var httpServerCore = new HttpServerCore(_staticPath);
+    var response = new Response();
+    var request = new Request(RequestFixtures.Sample("POST", "/file1"));
+    //When
+
+    httpServerCore.ProcessPublicDirectory(request, response);
+    httpServerCore.ProcessPublicDirectoryRestrictions(request, response);
+    
+    //Then
+    Assert.Contains("405 Method Not Allowed", response.Headers);
     }
   }
 }

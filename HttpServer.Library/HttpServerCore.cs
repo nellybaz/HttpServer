@@ -84,7 +84,7 @@ namespace HttpServer.Library
         string message = "<html><h2>Page not found</h2></html>";
         response.SetBody(message);
         response.Status = StatusCode._404;
-      } 
+      }
     }
 
     private Byte[] BytesFromArray(string data)
@@ -97,9 +97,11 @@ namespace HttpServer.Library
       // dataFromBytes | tokens [path, method] -> Request ->  verifyPath | Route -> handleMethods -> response -> middlewares -> bytesFromData
 
       List<Action<Request, Response>> middlewares = new List<Action<Request, Response>>();
+      middlewares.Add(AllowedMethod);
       middlewares.Add(ProcessPublicDirectory);
       middlewares.Add(ProcessMethods);
       middlewares.Add(ProcessRoutes);
+      middlewares.Add(ProcessPublicDirectoryRestrictions);
 
       string dataFromStream = GetStreamData(stream);
       Request request = new Request(dataFromStream);
@@ -114,12 +116,12 @@ namespace HttpServer.Library
 
     public void ProcessMethods(Request request, Response response)
     {
-      if (request.Method == RequesetMethod.OPTIONS)
+      if (request.Method == RequestMethod.OPTIONS)
       {
         response.Methods = "GET, HEAD, OPTIONS, PUT, DELETE";
         response.Status = StatusCode._200;
       }
-      if (request.Method == RequesetMethod.HEAD) response.SetBody("");
+      if (request.Method == RequestMethod.HEAD) response.SetBody("");
     }
 
     public void ProcessMiddleWares(List<Action<Request, Response>> middlewares, Request request, Response response)
@@ -135,13 +137,13 @@ namespace HttpServer.Library
       var protectedPath = new Dictionary<String, String>();
       protectedPath.Add("/logs", "GET, HEAD, OPTIONS");
 
-      if (request.Method == RequesetMethod.OPTIONS && protectedPath.ContainsKey(request.Url))
+      if (request.Method == RequestMethod.OPTIONS && protectedPath.ContainsKey(request.Url))
       {
         response.Methods = protectedPath[request.Url];
         response.Status = StatusCode._200;
       }
 
-      if (request.Url == "/" && request.Method == RequesetMethod.GET)
+      if (request.Url == "/" && request.Method == RequestMethod.GET)
       {
         string body = "<html><a href='http://localhost:5000/file1'>file1</a></html>";
         response.SetBody(body);
@@ -172,9 +174,18 @@ namespace HttpServer.Library
 
     public void ProcessPublicDirectoryRestrictions(Request request, Response response)
     {
-      if(request.IsPath && request.Method == RequesetMethod.POST){
+      if (request.IsPath && request.Method == RequestMethod.POST)
+      {
         response.Status = StatusCode._405;
         response.SetBody("");
+      }
+    }
+
+    public void AllowedMethod(Request request, Response response)
+    {
+      if (!RequestMethod.IsValid(request.Method))
+      {
+        response.Status = StatusCode._501;
       }
     }
   }

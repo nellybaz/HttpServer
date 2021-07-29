@@ -6,5 +6,6 @@ namespace HttpServer.Library
         public static readonly string _404 = "404 Not Found";
 
         public static readonly string _405 = "405 Method Not Allowed";
+        public static readonly string _501 = "501 Not Implemented";
     }
 }

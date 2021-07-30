@@ -79,6 +79,11 @@ namespace HttpServer.Library
       _bodyByte = System.Text.Encoding.ASCII.GetBytes(_body);
       _contentLength = BodyBytes.Length;
     }
+
+    public void SetStatus(string status)
+    {
+      this._status = status;
+    }
     public void SetBody(Byte[] messageByte)
     {
       _bodyByte = messageByte;

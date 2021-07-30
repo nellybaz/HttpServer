@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Net;
 using System.Net.Sockets;
-using System.Threading.Tasks;
 using System.IO;
 using System.Collections.Generic;
-using System.Net.Mime;
 
 namespace HttpServer.Library
 {
@@ -22,6 +20,7 @@ namespace HttpServer.Library
     {
       this._staticPath = staticPath;
       this._middlewares.Add(AllowedMethod);
+      this._middlewares.Add(BasicAuthentication);
       this._middlewares.Add(ProcessPublicDirectory);
       this._middlewares.Add(ProcessMethods);
       this._middlewares.Add(ProcessRoutes);
@@ -149,7 +148,8 @@ namespace HttpServer.Library
         response.SetBody(body);
       }
 
-      if(request.Url == "/logs" && request.Method != RequestMethod.GET){
+      if (request.Url == "/logs" && request.Method != RequestMethod.GET)
+      {
         response.Status = StatusCode._405;
       }
     }
@@ -196,6 +196,31 @@ namespace HttpServer.Library
     public void AddMiddleWare(Action<Request, Response> middleware)
     {
       this._middlewares.Add(middleware);
+    }
+
+    public void BasicAuthentication(Request request, Response response)
+    {
+      string userName = "admin";
+      string password = "hunter2";
+
+      Byte[] byteData = System.Text.Encoding.ASCII.GetBytes(userName + ":" + password);
+      string base64 = Convert.ToBase64String(byteData);
+
+      try
+      {
+        if (request.Url == "/logs")
+        {
+          string authenticatedPayload = request.Authorization.Split(" ")[1];
+          if (base64 != authenticatedPayload)
+          {
+            response.SetStatus(StatusCode._401);
+          }
+        }
+      }
+      catch (System.Exception)
+      {
+        response.SetStatus(StatusCode._401);
+      }
     }
   }
 

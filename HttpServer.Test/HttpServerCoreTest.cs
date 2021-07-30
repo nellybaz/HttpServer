@@ -231,5 +231,58 @@ namespace HttpServer.Test
       //Then
       Assert.Contains(StatusCode._501, response.Headers);
     }
+
+    [Fact]
+    public void Authenticated_Url_Returns_401_Error_If_Unauthenticated()
+    {
+      //Given
+      var httpServerCore = new HttpServerCore(_staticPath);
+      var response = new Response();
+      var request = new Request(RequestFixtures.SampleAuthorized("GET", "/logs", "Basic abcd"));
+      //When
+
+      httpServerCore.BasicAuthentication(request, response);
+
+      //Then
+      Assert.Contains(StatusCode._401, response.Headers);
+    }
+
+
+    [Fact]
+    public void Authenticated_Url_Returns_401_Error_For_Bad_Authentication()
+    {
+      //Given
+      var httpServerCore = new HttpServerCore(_staticPath);
+      var response = new Response();
+      var request = new Request(RequestFixtures.SampleAuthorized("GET", "/logs", "abcdexd"));
+      //When
+
+      httpServerCore.BasicAuthentication(request, response);
+
+      //Then
+      Assert.Contains(StatusCode._401, response.Headers);
+    }
+
+    [Fact]
+    public void Authenticated_Url_Returns_200_When_Authentication()
+    {
+      //Given
+
+      string userName = "admin";
+      string password = "hunter2";
+
+      Byte[] byteData = System.Text.Encoding.ASCII.GetBytes(userName + ":" + password);
+      string base64 = Convert.ToBase64String(byteData);
+
+      var httpServerCore = new HttpServerCore(_staticPath);
+      var response = new Response();
+      var request = new Request(RequestFixtures.SampleAuthorized("GET", "/logs", "Basic "+ base64));
+      //When
+
+      httpServerCore.BasicAuthentication(request, response);
+
+      //Then
+      Assert.Contains(StatusCode._200, response.Headers);
+    }
   }
 }

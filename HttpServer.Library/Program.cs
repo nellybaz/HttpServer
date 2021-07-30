@@ -9,6 +9,7 @@ namespace HttpServer.Library
             var staticPath = "/Users/nbassey/Development/owc/http-server/public";
             int port = 5000;
             new HttpServerCore(staticPath).Run(port);
+            // new App().Run();
         }
     }
 }

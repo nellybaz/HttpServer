@@ -16,9 +16,16 @@ namespace HttpServer.Library
     {
       get => _staticPath;
     }
+
+    private List<Action<Request, Response>> _middlewares = new List<Action<Request, Response>>();
     public HttpServerCore(string staticPath)
     {
       this._staticPath = staticPath;
+      this._middlewares.Add(AllowedMethod);
+      this._middlewares.Add(ProcessPublicDirectory);
+      this._middlewares.Add(ProcessMethods);
+      this._middlewares.Add(ProcessRoutes);
+      this._middlewares.Add(ProcessPublicDirectoryRestrictions);
     }
 
 
@@ -96,18 +103,11 @@ namespace HttpServer.Library
 
       // dataFromBytes | tokens [path, method] -> Request ->  verifyPath | Route -> handleMethods -> response -> middlewares -> bytesFromData
 
-      List<Action<Request, Response>> middlewares = new List<Action<Request, Response>>();
-      middlewares.Add(AllowedMethod);
-      middlewares.Add(ProcessPublicDirectory);
-      middlewares.Add(ProcessMethods);
-      middlewares.Add(ProcessRoutes);
-      middlewares.Add(ProcessPublicDirectoryRestrictions);
-
       string dataFromStream = GetStreamData(stream);
       Request request = new Request(dataFromStream);
       Response response = new Response();
 
-      ProcessMiddleWares(middlewares, request, response);
+      ProcessMiddleWares(this._middlewares, request, response);
 
       HttpServerWorker httpServerWorker = new HttpServerWorker(stream, request, response);
       httpServerWorker.Write();
@@ -145,8 +145,12 @@ namespace HttpServer.Library
 
       if (request.Url == "/" && request.Method == RequestMethod.GET)
       {
-        string body = "<html><a href='http://localhost:5000/file1'>file1</a></html>";
+        string body = "<html><a href='/file1'>file1</a></html>";
         response.SetBody(body);
+      }
+
+      if(request.Url == "/logs" && request.Method != RequestMethod.GET){
+        response.Status = StatusCode._405;
       }
     }
 
@@ -187,6 +191,11 @@ namespace HttpServer.Library
       {
         response.Status = StatusCode._501;
       }
+    }
+
+    public void AddMiddleWare(Action<Request, Response> middleware)
+    {
+      this._middlewares.Add(middleware);
     }
   }
 

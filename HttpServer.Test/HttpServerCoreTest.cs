@@ -284,5 +284,33 @@ namespace HttpServer.Test
       //Then
       Assert.Contains(StatusCode._200, response.Headers);
     }
+
+    [Fact]
+    public void Halted_Response_Skips_Subsequent_MiddleWares()
+    {
+     //Given
+
+      string userName = "admin";
+      string password = "hunter";
+
+      Byte[] byteData = System.Text.Encoding.ASCII.GetBytes(userName + ":" + password);
+      string base64 = Convert.ToBase64String(byteData);
+
+      var httpServerCore = new HttpServerCore(_staticPath);
+      var response = new Response();
+      var request = new Request(RequestFixtures.SampleAuthorized("GET", "/logs", "Basic "+ base64));
+      //When
+
+      
+      httpServerCore.AllowedMethod(request, response);
+      httpServerCore.BasicAuthentication(request, response);
+      httpServerCore.ProcessPublicDirectory(request, response);
+      httpServerCore.ProcessMethods(request, response);
+      httpServerCore.ProcessRoutes(request, response);
+      httpServerCore.ProcessPublicDirectoryRestrictions(request, response);
+
+      //Then
+      Assert.Contains(StatusCode._401, response.Headers);
+    }
   }
 }

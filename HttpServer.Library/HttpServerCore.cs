@@ -75,6 +75,7 @@ namespace HttpServer.Library
 
     public void ProcessPublicDirectory(Request request, Response response)
     {
+      if(response.Halted) return;
       response.SetBody("");
       if (request.Url == "/") return;
       try
@@ -115,6 +116,7 @@ namespace HttpServer.Library
 
     public void ProcessMethods(Request request, Response response)
     {
+      if(response.Halted) return;
       if (request.Method == RequestMethod.OPTIONS)
       {
         response.Methods = "GET, HEAD, OPTIONS, PUT, DELETE";
@@ -127,12 +129,14 @@ namespace HttpServer.Library
     {
       foreach (var action in middlewares)
       {
+        if(!response.Halted)
         action(request, response);
       }
     }
 
     public void ProcessRoutes(Request request, Response response)
     {
+      if(response.Halted) return;
       var protectedPath = new Dictionary<String, String>();
       protectedPath.Add("/logs", "GET, HEAD, OPTIONS");
 
@@ -178,6 +182,7 @@ namespace HttpServer.Library
 
     public void ProcessPublicDirectoryRestrictions(Request request, Response response)
     {
+      if(response.Halted) return;
       if (request.IsPath && request.Method == RequestMethod.POST)
       {
         response.Status = StatusCode._405;
@@ -187,6 +192,7 @@ namespace HttpServer.Library
 
     public void AllowedMethod(Request request, Response response)
     {
+      if(response.Halted) return;
       if (!RequestMethod.IsValid(request.Method))
       {
         response.Status = StatusCode._501;
@@ -200,6 +206,7 @@ namespace HttpServer.Library
 
     public void BasicAuthentication(Request request, Response response)
     {
+      if(response.Halted) return;
       string userName = "admin";
       string password = "hunter2";
 
@@ -213,6 +220,7 @@ namespace HttpServer.Library
           string authenticatedPayload = request.Authorization.Split(" ")[1];
           if (base64 != authenticatedPayload)
           {
+            response.Halt();
             response.SetStatus(StatusCode._401);
           }
         }

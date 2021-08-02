@@ -58,10 +58,17 @@ namespace HttpServer.Library
       get => System.Text.Encoding.ASCII.GetBytes(Headers);
     }
 
+    private bool _halted;
+    public bool Halted
+    {
+      get => _halted;
+    }
+
 
     private string _version;
     private string _encoding;
     private string _server;
+
 
     public Response()
     {
@@ -89,6 +96,11 @@ namespace HttpServer.Library
       _bodyByte = messageByte;
       _body = System.Text.Encoding.ASCII.GetString(messageByte);
       _contentLength = messageByte.Length;
+    }
+
+    public void Halt()
+    {
+      _halted = true;
     }
   }
 }

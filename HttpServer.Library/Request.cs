@@ -9,6 +9,13 @@ namespace HttpServer.Library
     public string Method;
     public bool IsPath;
 
+    private bool _authenticated;
+
+    public bool Authenticated{
+      get => _authenticated;
+      set => _authenticated = value;
+    }
+
     public string Authorization;
     public Request(string dataFromStream)
     {

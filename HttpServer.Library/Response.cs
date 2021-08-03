@@ -34,10 +34,22 @@ namespace HttpServer.Library
       get => _body;
     }
 
+    public string Version
+    {
+      get => _version;
+    }
+
     private Byte[] _bodyByte;
     public Byte[] BodyBytes
     {
       get => _bodyByte;
+    }
+
+    private bool _authenticate;
+    public bool Authenticate
+    {
+      get => _authenticate;
+      set => _authenticate = value;
     }
 
     private int _contentLength;
@@ -49,8 +61,7 @@ namespace HttpServer.Library
 
     public string Headers
     {
-      get =>
-      _methods == null ? $"{_version} {_status}{newLine}Server: {_server}{newLine}Content-Type: {_mime} {_encoding}{newLine}Accept-Ranges: bytes{newLine}Content-Length: {_contentLength}{newLine}{newLine}" : $"{_version} {_status}{newLine}Allow: {_methods}{newLine}Server: {_server}{newLine}Content-Type: {_mime} {_encoding}{newLine}Accept-Ranges: bytes{newLine}Content-Length: {_contentLength}{newLine}{newLine}";
+      get => FormatHeaders();
     }
 
     public Byte[] HeadersByte
@@ -101,6 +112,16 @@ namespace HttpServer.Library
     public void Halt()
     {
       _halted = true;
+    }
+    private string FormatHeaders()
+    {
+      string method = "";
+      if (_methods != null) method = $"Allow: {_methods}{newLine}";
+
+      string authenticate = "";
+      if (_authenticate) authenticate = $"WWW-Authenticate: Basic realm='Access to resource', charset='UTF-8'{newLine}";
+      string headers = $"{_version} {_status}{newLine}{method}Server: {_server}{newLine}Content-Type: {_mime} {_encoding}{newLine}{authenticate}Accept-Ranges: bytes{newLine}Content-Length: {_contentLength}{newLine}{newLine}";
+      return headers;
     }
   }
 }

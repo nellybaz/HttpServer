@@ -20,7 +20,7 @@ namespace HttpServer.Library
     {
       this._staticPath = staticPath;
       this._middlewares.Add(AllowedMethod);
-      this._middlewares.Add(BasicAuthentication);
+      // this._middlewares.Add(BasicAuthentication);
       this._middlewares.Add(ProcessPublicDirectory);
       this._middlewares.Add(ProcessMethods);
       this._middlewares.Add(ProcessRoutes);
@@ -75,7 +75,6 @@ namespace HttpServer.Library
 
     public void ProcessPublicDirectory(Request request, Response response)
     {
-      if(response.Halted) return;
       response.SetBody("");
       if (request.Url == "/") return;
       try
@@ -116,7 +115,6 @@ namespace HttpServer.Library
 
     public void ProcessMethods(Request request, Response response)
     {
-      if(response.Halted) return;
       if (request.Method == RequestMethod.OPTIONS)
       {
         response.Methods = "GET, HEAD, OPTIONS, PUT, DELETE";
@@ -129,14 +127,13 @@ namespace HttpServer.Library
     {
       foreach (var action in middlewares)
       {
-        if(!response.Halted)
-        action(request, response);
+        if (!response.Halted)
+          action(request, response);
       }
     }
 
     public void ProcessRoutes(Request request, Response response)
     {
-      if(response.Halted) return;
       var protectedPath = new Dictionary<String, String>();
       protectedPath.Add("/logs", "GET, HEAD, OPTIONS");
 
@@ -144,17 +141,40 @@ namespace HttpServer.Library
       {
         response.Methods = protectedPath[request.Url];
         response.Status = StatusCode._200;
+        return;
       }
 
       if (request.Url == "/" && request.Method == RequestMethod.GET)
       {
         string body = "<html><a href='/file1'>file1</a></html>";
         response.SetBody(body);
+        return;
       }
 
-      if (request.Url == "/logs" && request.Method != RequestMethod.GET)
+      if (request.Url == "/logs")
       {
-        response.Status = StatusCode._405;
+        BasicAuthentication(request, response);
+        if (request.Authenticated)
+        {
+          if (request.Method == RequestMethod.POST)
+          {
+            response.SetStatus(StatusCode._405);
+          }
+          else
+          {
+            response.SetStatus(StatusCode._200);
+          }
+          response.SetBody(request.Method + " " + request.Url + " " + response.Version);
+          response.Mime = MimeType.PlainText;
+          response.Halt();
+        }
+      }
+
+      if (request.Url == "/requests" || request.Url == "/these")
+      {
+        response.SetBody(request.Method + " " + request.Url + " " + response.Version);
+        response.Mime = MimeType.PlainText;
+        response.Halt();
       }
     }
 
@@ -182,7 +202,6 @@ namespace HttpServer.Library
 
     public void ProcessPublicDirectoryRestrictions(Request request, Response response)
     {
-      if(response.Halted) return;
       if (request.IsPath && request.Method == RequestMethod.POST)
       {
         response.Status = StatusCode._405;
@@ -192,7 +211,6 @@ namespace HttpServer.Library
 
     public void AllowedMethod(Request request, Response response)
     {
-      if(response.Halted) return;
       if (!RequestMethod.IsValid(request.Method))
       {
         response.Status = StatusCode._501;
@@ -206,7 +224,6 @@ namespace HttpServer.Library
 
     public void BasicAuthentication(Request request, Response response)
     {
-      if(response.Halted) return;
       string userName = "admin";
       string password = "hunter2";
 
@@ -217,17 +234,27 @@ namespace HttpServer.Library
       {
         if (request.Url == "/logs")
         {
+          response.Authenticate = true;
           string authenticatedPayload = request.Authorization.Split(" ")[1];
+
           if (base64 != authenticatedPayload)
           {
-            response.Halt();
             response.SetStatus(StatusCode._401);
+          }
+          else
+          {
+            request.Authenticated = true;
           }
         }
       }
       catch (System.Exception)
       {
         response.SetStatus(StatusCode._401);
+      }
+
+      if (request.Url == "/logs" && request.Method != RequestMethod.OPTIONS)
+      {
+        response.Halt();
       }
     }
   }
@@ -248,8 +275,16 @@ namespace HttpServer.Library
 
     public void Write()
     {
-      stream.Write(response.HeadersByte, 0, response.HeadersByte.Length);
-      stream.Write(response.BodyBytes, 0, response.BodyBytes.Length);
+      try
+      {
+        stream.Write(response.HeadersByte, 0, response.HeadersByte.Length);
+        stream.Write(response.BodyBytes, 0, response.BodyBytes.Length);
+      }
+      catch (System.Exception ex)
+      {
+        // TODO
+        Console.WriteLine(ex);
+      }
     }
 
   }

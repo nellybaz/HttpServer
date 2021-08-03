@@ -146,7 +146,13 @@ namespace HttpServer.Library
 
       if (request.Url == "/" && request.Method == RequestMethod.GET)
       {
-        string body = "<html><a href='/file1'>file1</a></html>";
+        string links = "";
+        string[] files = Directory.GetFiles(this._staticPath);
+        foreach(var file in files){
+          string url = file.Split("public")[1];
+          links += $"<a href='{url}'>{url}</a></br>";
+        }
+        string body = $"<html>{links}</html>";
         response.SetBody(body);
         return;
       }

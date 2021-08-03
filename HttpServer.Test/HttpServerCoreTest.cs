@@ -331,5 +331,25 @@ namespace HttpServer.Test
       //Then
       Assert.Contains("WWW-Authenticate", response.Headers);
     }
+
+    [Fact]
+    public void ProcessRoutes_List_Files_For_Index_Url()
+    {
+      //Given
+      var httpServerCore = new HttpServerCore(_staticPath);
+      var response = new Response();
+      var request = new Request(RequestFixtures.SampleGet());
+
+      //When
+      httpServerCore.ProcessRoutes(request, response);
+
+      //Then
+      Assert.Contains("<a href='/file1'", response.Body);
+      Assert.Contains("<a href='/file2'", response.Body);
+      Assert.Contains("<a href='/image.gif'", response.Body);
+      Assert.Contains("<a href='/image.png'", response.Body);
+      Assert.Contains("<a href='/image.jpeg'", response.Body);
+      Assert.Contains("<a href='/text-file.txt'", response.Body);
+    }
   }
 }

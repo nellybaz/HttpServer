@@ -3,6 +3,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.IO;
 using System.Collections.Generic;
+using System.Text;
 
 namespace HttpServer.Library
 {
@@ -66,6 +67,9 @@ namespace HttpServer.Library
 
       String data = null;
       StreamReader reader = new StreamReader(stream);
+      // for(string line; (line = reader.ReadLine()) != null;){
+      //     data += line + "\n";
+      // }
       while (reader.Peek() != -1)
       {
         data += reader.ReadLine() + "\n";
@@ -121,6 +125,15 @@ namespace HttpServer.Library
         response.Status = StatusCode._200;
       }
       if (request.Method == RequestMethod.HEAD) response.SetBody("");
+
+      if(request.Method == RequestMethod.PUT){
+            string path = this._staticPath + request.Url;
+            using (FileStream fs = File.Create(path))
+            {
+                byte[] info = new UTF8Encoding(true).GetBytes("This is some text in the file.");
+                fs.Write(info, 0, info.Length);
+            }
+      }
     }
 
     public void ProcessMiddleWares(List<Action<Request, Response>> middlewares, Request request, Response response)
@@ -176,12 +189,12 @@ namespace HttpServer.Library
         }
       }
 
-      if (request.Url == "/requests" || request.Url == "/these")
-      {
-        response.SetBody(request.Method + " " + request.Url + " " + response.Version);
-        response.Mime = MimeType.PlainText;
-        response.Halt();
-      }
+      // if (request.Url == "/requests" || request.Url == "/these")
+      // {
+      //   response.SetBody(request.Method + " " + request.Url + " " + response.Version);
+      //   response.Mime = MimeType.PlainText;
+      //   response.Halt();
+      // }
     }
 
     public string GetMimeType(string path)

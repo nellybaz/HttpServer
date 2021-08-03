@@ -351,5 +351,21 @@ namespace HttpServer.Test
       Assert.Contains("<a href='/image.jpeg'", response.Body);
       Assert.Contains("<a href='/text-file.txt'", response.Body);
     }
+
+    [Fact]
+    public void Put_Creates_New_File_If_Not_Available()
+    {
+      //Given
+      var httpServerCore = new HttpServerCore(_staticPath);
+      var response = new Response();
+      var request = new Request(RequestFixtures.Sample("PUT", "/no-there"));
+      string data = "content for file";
+
+      //When
+      httpServerCore.ProcessMethods(request, response);
+
+      //Then
+      Assert.Contains(data, response.Body);
+    }
   }
 }

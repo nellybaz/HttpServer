@@ -37,12 +37,12 @@ namespace HttpServer.Library
       }
 
       string[] tokens = headers.Split(" ");
-      string[] tokensByNewLine = headers.Split(newLine);
+      string[] tokensByNewLine = headers.Split("\r\n");
       Method = tokens[0];
       Url = tokens[1];
       if (tokensByNewLine[1].Contains("Authorization"))
       {
-        Authorization = tokensByNewLine[1].Split(":")[1].TrimStart();
+        Authorization = tokensByNewLine[1].Split(":")[1].TrimStart().Split("\r")[0];
         // $"{tokens[3]} {tokens[4].Split("\n")[0]}";
       }
 

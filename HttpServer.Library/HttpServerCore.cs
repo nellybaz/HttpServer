@@ -128,9 +128,10 @@ namespace HttpServer.Library
       }
       if (request.Method == RequestMethod.HEAD) response.SetBody("");
 
+      string path = this._staticPath + request.Url;
+
       if (request.Method == RequestMethod.PUT)
       {
-        string path = this._staticPath + request.Url;
         using (FileStream fs = File.Create(path))
         {
           byte[] info = new UTF8Encoding(true).GetBytes(request.Body);
@@ -147,6 +148,12 @@ namespace HttpServer.Library
             response.SetBody("Created");
           }
         }
+      }
+      if (request.Method == RequestMethod.DELETE && request.IsPath)
+      {
+        File.Delete(path);
+        response.SetStatus(StatusCode._200);
+        response.SetBody("Deleted");
       }
     }
 

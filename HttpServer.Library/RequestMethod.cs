@@ -12,6 +12,7 @@ namespace HttpServer.Library
     public static readonly string PUT = "PUT";
     public static readonly string HEAD = "HEAD";
     public static readonly string OPTIONS = "OPTIONS";
+    public static readonly string DELETE = "DELETE";
 
     public static bool IsValid(string method)
     {

@@ -300,17 +300,9 @@ namespace HttpServer.Test
       var httpServerCore = new HttpServerCore(_staticPath);
       var response = new Response();
       var request = new Request(RequestFixtures.SampleAuthorized("GET", "/logs", "Basic " + base64));
+
       //When
-
-      List<Action<Request, Response>> middlewares = new List<Action<Request, Response>>();
-      middlewares.Add(httpServerCore.AllowedMethod);
-      middlewares.Add(httpServerCore.BasicAuthentication);
-      middlewares.Add(httpServerCore.ProcessPublicDirectory);
-      middlewares.Add(httpServerCore.ProcessMethods);
-      middlewares.Add(httpServerCore.ProcessRoutes);
-      middlewares.Add(httpServerCore.ProcessPublicDirectoryRestrictions);
-
-      httpServerCore.ProcessMiddleWares(middlewares, request, response);
+      Helper.processMiddleWares(httpServerCore, request, response);
 
 
       //Then
@@ -358,10 +350,54 @@ namespace HttpServer.Test
       var httpServerCore = new HttpServerCore(_staticPath);
       var response = new Response();
       string data = "content for file";
-      string path = "/no-there"+DateTime.Now.ToLongTimeString();
+      string path = "/no-there" + DateTime.Now.ToLongTimeString();
       var request = new Request(RequestFixtures.Sample("PUT", path, data));
 
       //When
+      Helper.processMiddleWares(httpServerCore, request, response);
+
+      //Then
+      Assert.Contains("201 Created", response.Headers);
+
+      var request2 = new Request(RequestFixtures.Sample("DELETE", path, data));
+      Helper.processMiddleWares(httpServerCore, request2, response);
+    }
+
+    [Fact]
+    public void DELETE_Removes_File()
+    {
+
+      //Given
+      var httpServerCore = new HttpServerCore(_staticPath);
+      var response = new Response();
+      string data = "content for file";
+      string path = "/no-there" + DateTime.Now.ToLongTimeString();
+      var request = new Request(RequestFixtures.Sample("PUT", path, data));
+
+      var response2 = new Response();
+      var request2 = new Request(RequestFixtures.Sample("DELETE", path));
+
+       var response3 = new Response();
+      var request3 = new Request(RequestFixtures.Sample("GET", path));
+
+      //When
+      Helper.processMiddleWares(httpServerCore, request, response);
+
+      Helper.processMiddleWares(httpServerCore, request2, response2);
+
+      Helper.processMiddleWares(httpServerCore, request3, response3);
+
+      //Then
+      Assert.Contains("201 Created", response.Headers);
+      Assert.Contains("200 OK", response2.Headers);
+      Assert.DoesNotContain("content for file", response2.Body);
+    }
+  }
+
+  public class Helper
+  {
+    public static void processMiddleWares(HttpServerCore httpServerCore, Request request, Response response)
+    {
       List<Action<Request, Response>> middlewares = new List<Action<Request, Response>>();
       middlewares.Add(httpServerCore.AllowedMethod);
       middlewares.Add(httpServerCore.BasicAuthentication);
@@ -371,9 +407,6 @@ namespace HttpServer.Test
       middlewares.Add(httpServerCore.ProcessPublicDirectoryRestrictions);
 
       httpServerCore.ProcessMiddleWares(middlewares, request, response);
-
-      //Then
-      Assert.Contains("201 Created", response.Headers);
     }
   }
 }

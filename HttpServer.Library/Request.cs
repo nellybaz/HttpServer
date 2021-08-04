@@ -23,7 +23,9 @@ namespace HttpServer.Library
 
       string newLine = Environment.NewLine;
       string[] dataSplit = dataFromStream.Split($"{newLine}{newLine}");
-      
+      if(dataSplit.Length == 1){
+        dataSplit = dataFromStream.Split("\r\n\r\n");
+      }
       string headers = dataSplit[0];
       string body = dataSplit[1];
 

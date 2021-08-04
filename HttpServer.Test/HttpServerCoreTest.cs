@@ -377,7 +377,7 @@ namespace HttpServer.Test
       var response2 = new Response();
       var request2 = new Request(RequestFixtures.Sample("DELETE", path));
 
-       var response3 = new Response();
+      var response3 = new Response();
       var request3 = new Request(RequestFixtures.Sample("GET", path));
 
       //When
@@ -392,6 +392,23 @@ namespace HttpServer.Test
       Assert.Contains("200 OK", response2.Headers);
       Assert.DoesNotContain("content for file", response2.Body);
     }
+
+    // [Fact]
+    // public void Partial_Content_Returns_For_Valid_Start_And_End_Ranges()
+    // {
+    //   //Given
+    //   var httpServerCore = new HttpServerCore(_staticPath);
+    //   var response = new Response();
+    //   string range = "bytes=0-4";
+    //   string path = "/partial_content.txt";
+    //   var request = new Request(RequestFixtures.SampleRange("GET", path, range));
+
+    //   //When
+    //   Helper.processMiddleWares(httpServerCore, request, response);
+
+    //   //Then
+    //   Assert.Contains("206 Partial Content", response.Headers);
+    // }
   }
 
   public class Helper

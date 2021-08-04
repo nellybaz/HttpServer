@@ -12,7 +12,8 @@ namespace HttpServer.Library
     private bool _authenticated;
 
     private string _body;
-    public string Body {
+    public string Body
+    {
       get => _body;
     }
 
@@ -22,17 +23,25 @@ namespace HttpServer.Library
       set => _authenticated = value;
     }
 
+    private string _range;
+    public string Range
+    {
+      get => _range;
+    }
+
     public string Authorization;
     public Request(string dataFromStream)
     {
 
       string newLine = Environment.NewLine;
       string[] dataSplit = dataFromStream.Split($"{newLine}{newLine}");
-      if(dataSplit.Length == 1){
+      if (dataSplit.Length == 1)
+      {
         dataSplit = dataFromStream.Split("\r\n\r\n");
       }
       string headers = dataSplit[0];
-      if(dataSplit.Length > 1){
+      if (dataSplit.Length > 1)
+      {
         _body = dataSplit[1];
       }
 
@@ -40,11 +49,19 @@ namespace HttpServer.Library
       string[] tokensByNewLine = headers.Split("\r\n");
       Method = tokens[0];
       Url = tokens[1];
-      if (tokensByNewLine[1].Contains("Authorization"))
+
+      foreach (var item in tokensByNewLine)
       {
-        Authorization = tokensByNewLine[1].Split(":")[1].TrimStart().Split("\r")[0];
-        // $"{tokens[3]} {tokens[4].Split("\n")[0]}";
+        if (item.Contains("Authorization"))
+        {
+          Authorization = item.Split(":")[1].TrimStart().Split("\r")[0];
+        }
+        if (item.Contains("Range"))
+        {
+          _range = item.Split("=")[1];
+        }
       }
+
 
     }
 

@@ -49,14 +49,26 @@ namespace HttpServer.Test
     [Fact]
     public void Gets_Authorization_Header_Present()
     {
-    //Given
-    string authorization = "Basic abcdef";
-    
-    //When
-    var request = new Request(RequestFixtures.SampleAuthorized("GET", "/file1", authorization ));
-    
-    //Then
-    Assert.Equal(authorization, request.Authorization);
+      //Given
+      string authorization = "Basic abcdef";
+
+      //When
+      var request = new Request(RequestFixtures.SampleAuthorized("GET", "/file1", authorization));
+
+      //Then
+      Assert.Equal(authorization, request.Authorization);
+    }
+
+    [Fact]
+    public void Gets_Byte_Range()
+    {
+      //Given
+      string range = "bytes=0-4";
+      //When
+      string path = "/partial_content.txt";
+      var request = new Request(RequestFixtures.SampleRange("GET", path, range));
+      //Then
+      Assert.Equal("0-4", request.Range);
     }
   }
 }

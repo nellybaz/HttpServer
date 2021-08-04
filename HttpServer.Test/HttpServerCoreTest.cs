@@ -349,7 +349,6 @@ namespace HttpServer.Test
       Assert.Contains("<a href='/image.gif'", response.Body);
       Assert.Contains("<a href='/image.png'", response.Body);
       Assert.Contains("<a href='/image.jpeg'", response.Body);
-      Assert.Contains("<a href='/text-file.txt'", response.Body);
     }
 
     [Fact]
@@ -374,7 +373,7 @@ namespace HttpServer.Test
       httpServerCore.ProcessMiddleWares(middlewares, request, response);
 
       //Then
-      Assert.Contains("404 Not Found", response.Headers);
+      Assert.Contains("201 Created", response.Headers);
     }
   }
 }

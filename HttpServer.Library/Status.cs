@@ -4,6 +4,8 @@ namespace HttpServer.Library
   {
     public static readonly string _200 = "200 OK";
 
+    public static readonly string _201 = "201 Created";
+
     public static readonly string _401 = "401 Unauthorized";
     public static readonly string _404 = "404 Not Found";
     public static readonly string _405 = "405 Method Not Allowed";

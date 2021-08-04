@@ -128,13 +128,24 @@ namespace HttpServer.Library
       }
       if (request.Method == RequestMethod.HEAD) response.SetBody("");
 
-      if (request.Method == RequestMethod.PUT && !request.IsPath)
+      if (request.Method == RequestMethod.PUT)
       {
         string path = this._staticPath + request.Url;
         using (FileStream fs = File.Create(path))
         {
           byte[] info = new UTF8Encoding(true).GetBytes(request.Body);
           fs.Write(info, 0, info.Length);
+
+          if (request.IsPath)
+          {
+            response.SetStatus(StatusCode._200);
+            response.SetBody("Updated");
+          }
+          else
+          {
+            response.SetStatus(StatusCode._201);
+            response.SetBody("Created");
+          }
         }
       }
     }

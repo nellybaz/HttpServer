@@ -11,7 +11,8 @@ namespace HttpServer.Library
 
     private bool _authenticated;
 
-    public bool Authenticated{
+    public bool Authenticated
+    {
       get => _authenticated;
       set => _authenticated = value;
     }
@@ -19,15 +20,23 @@ namespace HttpServer.Library
     public string Authorization;
     public Request(string dataFromStream)
     {
-      string[] tokens = dataFromStream.Split(" ");
-      string[] tokensByNewLine = dataFromStream.Split("\n");
+
+      string newLine = Environment.NewLine;
+      string[] dataSplit = dataFromStream.Split($"{newLine}{newLine}");
+      
+      string headers = dataSplit[0];
+      string body = dataSplit[1];
+
+      string[] tokens = headers.Split(" ");
+      string[] tokensByNewLine = headers.Split(newLine);
       Method = tokens[0];
       Url = tokens[1];
-      if(tokensByNewLine[1].Contains("Authorization")){
+      if (tokensByNewLine[1].Contains("Authorization"))
+      {
         Authorization = tokensByNewLine[1].Split(":")[1].TrimStart();
-      // $"{tokens[3]} {tokens[4].Split("\n")[0]}";
+        // $"{tokens[3]} {tokens[4].Split("\n")[0]}";
       }
-      
+
     }
 
   }

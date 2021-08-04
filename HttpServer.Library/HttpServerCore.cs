@@ -65,15 +65,20 @@ namespace HttpServer.Library
     public static string GetStreamData(Stream stream)
     {
 
-      String data = null;
+      String data = String.Empty;
       StreamReader reader = new StreamReader(stream);
-      // for(string line; (line = reader.ReadLine()) != null;){
-      //     data += line + "\n";
+      Byte[] byteData = new Byte[256 * 2];
+
+      int currentIndex = -1;
+      currentIndex = stream.Read(byteData, 0, byteData.Length);
+      data += System.Text.Encoding.ASCII.GetString(byteData, 0, currentIndex);
+      Console.WriteLine(currentIndex);
+      Console.WriteLine(data);
+      // while (reader.Peek() != -1)
+      // {
+      //   data += reader.ReadLine() + "\n";
       // }
-      while (reader.Peek() != -1)
-      {
-        data += reader.ReadLine() + "\n";
-      }
+      Console.WriteLine("Loop ended");
       return data;
     }
 
@@ -107,6 +112,7 @@ namespace HttpServer.Library
       // dataFromBytes | tokens [path, method] -> Request ->  verifyPath | Route -> handleMethods -> response -> middlewares -> bytesFromData
 
       string dataFromStream = GetStreamData(stream);
+      Console.WriteLine(dataFromStream);
       Request request = new Request(dataFromStream);
       Response response = new Response();
 
@@ -126,13 +132,14 @@ namespace HttpServer.Library
       }
       if (request.Method == RequestMethod.HEAD) response.SetBody("");
 
-      if(request.Method == RequestMethod.PUT){
-            string path = this._staticPath + request.Url;
-            using (FileStream fs = File.Create(path))
-            {
-                byte[] info = new UTF8Encoding(true).GetBytes("This is some text in the file.");
-                fs.Write(info, 0, info.Length);
-            }
+      if (request.Method == RequestMethod.PUT)
+      {
+        string path = this._staticPath + request.Url;
+        using (FileStream fs = File.Create(path))
+        {
+          byte[] info = new UTF8Encoding(true).GetBytes("This is some text in the file.");
+          fs.Write(info, 0, info.Length);
+        }
       }
     }
 
@@ -161,7 +168,8 @@ namespace HttpServer.Library
       {
         string links = "";
         string[] files = Directory.GetFiles(this._staticPath);
-        foreach(var file in files){
+        foreach (var file in files)
+        {
           string url = file.Split("public")[1];
           links += $"<a href='{url}'>{url}</a></br>";
         }

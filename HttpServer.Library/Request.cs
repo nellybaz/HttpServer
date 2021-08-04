@@ -11,6 +11,11 @@ namespace HttpServer.Library
 
     private bool _authenticated;
 
+    private string _body;
+    public string Body {
+      get => _body;
+    }
+
     public bool Authenticated
     {
       get => _authenticated;
@@ -27,7 +32,9 @@ namespace HttpServer.Library
         dataSplit = dataFromStream.Split("\r\n\r\n");
       }
       string headers = dataSplit[0];
-      string body = dataSplit[1];
+      if(dataSplit.Length > 1){
+        _body = dataSplit[1];
+      }
 
       string[] tokens = headers.Split(" ");
       string[] tokensByNewLine = headers.Split(newLine);

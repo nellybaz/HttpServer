@@ -358,14 +358,23 @@ namespace HttpServer.Test
       //Given
       var httpServerCore = new HttpServerCore(_staticPath);
       var response = new Response();
-      var request = new Request(RequestFixtures.Sample("PUT", "/no-there"));
       string data = "content for file";
+      string path = "/no-there"+DateTime.Now.ToLongTimeString();
+      var request = new Request(RequestFixtures.Sample("PUT", path, data));
 
       //When
-      httpServerCore.ProcessMethods(request, response);
+      List<Action<Request, Response>> middlewares = new List<Action<Request, Response>>();
+      middlewares.Add(httpServerCore.AllowedMethod);
+      middlewares.Add(httpServerCore.BasicAuthentication);
+      middlewares.Add(httpServerCore.ProcessPublicDirectory);
+      middlewares.Add(httpServerCore.ProcessMethods);
+      middlewares.Add(httpServerCore.ProcessRoutes);
+      middlewares.Add(httpServerCore.ProcessPublicDirectoryRestrictions);
+
+      httpServerCore.ProcessMiddleWares(middlewares, request, response);
 
       //Then
-      Assert.Contains(data, response.Body);
+      Assert.Contains("404 Not Found", response.Headers);
     }
   }
 }

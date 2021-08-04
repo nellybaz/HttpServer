@@ -72,13 +72,10 @@ namespace HttpServer.Library
       int currentIndex = -1;
       currentIndex = stream.Read(byteData, 0, byteData.Length);
       data += System.Text.Encoding.ASCII.GetString(byteData, 0, currentIndex);
-      Console.WriteLine(currentIndex);
-      Console.WriteLine(data);
       // while (reader.Peek() != -1)
       // {
       //   data += reader.ReadLine() + "\n";
       // }
-      Console.WriteLine("Loop ended");
       return data;
     }
 
@@ -112,7 +109,6 @@ namespace HttpServer.Library
       // dataFromBytes | tokens [path, method] -> Request ->  verifyPath | Route -> handleMethods -> response -> middlewares -> bytesFromData
 
       string dataFromStream = GetStreamData(stream);
-      Console.WriteLine(dataFromStream);
       Request request = new Request(dataFromStream);
       Response response = new Response();
 
@@ -132,12 +128,12 @@ namespace HttpServer.Library
       }
       if (request.Method == RequestMethod.HEAD) response.SetBody("");
 
-      if (request.Method == RequestMethod.PUT)
+      if (request.Method == RequestMethod.PUT && !request.IsPath)
       {
         string path = this._staticPath + request.Url;
         using (FileStream fs = File.Create(path))
         {
-          byte[] info = new UTF8Encoding(true).GetBytes("This is some text in the file.");
+          byte[] info = new UTF8Encoding(true).GetBytes(request.Body);
           fs.Write(info, 0, info.Length);
         }
       }

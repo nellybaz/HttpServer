@@ -9,6 +9,7 @@ namespace HttpServer.Library
   {
     public static void BasicAuthentication(Request request, Response response)
     {
+      if(request.Method == RequestMethod.OPTIONS) return;
       string userName = "admin";
       string password = "hunter2";
 
@@ -25,6 +26,7 @@ namespace HttpServer.Library
           if (base64 != authenticatedPayload)
           {
             response.SetStatus(StatusCode._401);
+            response.Halt();
           }
           else
           {
@@ -35,10 +37,6 @@ namespace HttpServer.Library
       catch (System.Exception)
       {
         response.SetStatus(StatusCode._401);
-      }
-
-      if (request.Url == "/logs" && request.Method != RequestMethod.OPTIONS)
-      {
         response.Halt();
       }
     }
@@ -88,7 +86,7 @@ namespace HttpServer.Library
 
       if (request.Url == "/logs")
       {
-        BasicAuthentication(request, response);
+        // BasicAuthentication(request, response);
         if (request.Authenticated)
         {
           if (request.Method == RequestMethod.POST)

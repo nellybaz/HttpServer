@@ -304,6 +304,22 @@ namespace HttpServer.Test
       Assert.Contains(StatusCode._401, response.Headers);
     }
 
+
+    [Fact]
+    public void Request_With_No_Auth_Headers_Returns_401()
+    {
+      //Given
+      var httpServerCore = new HttpServerCore(_staticPath);
+      var response = new Response();
+      var request = new Request(RequestFixtures.Sample("GET", "/logs"));
+
+      //When
+      Helper.processMiddleWares(httpServerCore, request, response);
+
+      //Then
+      Assert.Contains(StatusCode._401, response.Headers);
+    }
+
     [Fact]
     public void Protected_Url_Has_WWW_Authenticate_Header()
     {
@@ -418,6 +434,7 @@ namespace HttpServer.Test
     public static void processMiddleWares(HttpServerCore httpServerCore, Request request, Response response)
     {
       List<Action<Request, Response>> middlewares = new List<Action<Request, Response>>();
+      middlewares.Add(Middlewares.BasicAuthentication);
       middlewares.Add(Middlewares.AllowedMethod);
       middlewares.Add(Middlewares.ProcessPublicDirectory);
       middlewares.Add(Middlewares.ProcessMethods);

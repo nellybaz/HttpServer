@@ -29,6 +29,7 @@ namespace HttpServer.Library
       get => _range;
     }
 
+    public App App = new App();
     public string Authorization;
     public Request(string dataFromStream)
     {
@@ -65,5 +66,9 @@ namespace HttpServer.Library
 
     }
 
+    internal void SetStaticPath(string value)
+    {
+      App.StaticPath = value;
+    }
   }
 }

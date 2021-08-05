@@ -92,21 +92,18 @@ namespace HttpServer.Test
       string actual = HttpServerCore.GetStreamData(clientStream);
       string status = "404 Not Found";
       Assert.Contains(status, actual);
-      // Assert.Contains("Page not found", actual);
-      // Assert.Contains(MimeType.Html, actual);
     }
 
     [Fact]
     public void GeMessageFromPath_Returns_Message_In_File()
     {
       //Given
-      var staticPath = "/Users/nbassey/Development/owc/http-server/public";
-      var httpServerCore = new HttpServerCore(staticPath);
       var request = new Request(RequestFixtures.SampleGet("/file1"));
+      request.App.StaticPath = _staticPath;
       var response = new Response();
       //When
 
-      httpServerCore.ProcessPublicDirectory(request, response);
+      Middlewares.ProcessPublicDirectory(request, response);
       //Then
       Assert.Equal("file1 contents", response.Body);
     }
@@ -159,7 +156,7 @@ namespace HttpServer.Test
       var request = new Request(requestData);
       var response = new Response();
       //When
-      new HttpServerCore(_staticPath).ProcessMethods(request, response);
+      Middlewares.ProcessMethods(request, response);
       //Then
       string expected = "Allow: GET, HEAD, OPTIONS, PUT, DELETE";
       Assert.Contains(expected, response.Headers);
@@ -173,7 +170,7 @@ namespace HttpServer.Test
       var request = new Request(requestData);
       var response = new Response();
       //When
-      new HttpServerCore(_staticPath).ProcessRoutes(request, response);
+      Middlewares.ProcessRoutes(request, response);
       //Then
       string expected = "Allow: GET, HEAD, OPTIONS";
       string unexpectedMethods = "PUT, DELETE";
@@ -185,14 +182,13 @@ namespace HttpServer.Test
     public void MimeType_Determines_File_Mime_Type()
     {
       //Given
-      var httpServerCore = new HttpServerCore(_staticPath);
 
       //When
-      string fileMimeType = httpServerCore.GetMimeType("file1");
-      string imageMimeType = httpServerCore.GetMimeType("image.jpeg");
-      string htmlMimeType = httpServerCore.GetMimeType("file.html");
-      string pngMimeType = httpServerCore.GetMimeType("file.png");
-      string gifMimeType = httpServerCore.GetMimeType("file.gif");
+      string fileMimeType = MimeType.GetMimeType("file1");
+      string imageMimeType = MimeType.GetMimeType("image.jpeg");
+      string htmlMimeType = MimeType.GetMimeType("file.html");
+      string pngMimeType = MimeType.GetMimeType("file.png");
+      string gifMimeType = MimeType.GetMimeType("file.gif");
 
       //Then
       Assert.Equal(MimeType.PlainText, fileMimeType);
@@ -206,13 +202,13 @@ namespace HttpServer.Test
     public void Post_Method_To_Static_File_Returns_405_Error()
     {
       //Given
-      var httpServerCore = new HttpServerCore(_staticPath);
       var response = new Response();
       var request = new Request(RequestFixtures.Sample("POST", "/file1"));
+      request.App.StaticPath = _staticPath;
       //When
 
-      httpServerCore.ProcessPublicDirectory(request, response);
-      httpServerCore.ProcessPublicDirectoryRestrictions(request, response);
+      Middlewares.ProcessPublicDirectory(request, response);
+      Middlewares.ProcessPublicDirectoryRestrictions(request, response);
 
       //Then
       Assert.Contains(StatusCode._405, response.Headers);
@@ -222,12 +218,11 @@ namespace HttpServer.Test
     public void Bogus_Request_To_Static_File_Returns_501_Error()
     {
       //Given
-      var httpServerCore = new HttpServerCore(_staticPath);
       var response = new Response();
       var request = new Request(RequestFixtures.Sample("BOGUS", "/file1"));
       //When
 
-      httpServerCore.AllowedMethod(request, response);
+      Middlewares.AllowedMethod(request, response);
 
       //Then
       Assert.Contains(StatusCode._501, response.Headers);
@@ -242,7 +237,7 @@ namespace HttpServer.Test
       var request = new Request(RequestFixtures.SampleAuthorized("GET", "/logs", "Basic abcd"));
       //When
 
-      httpServerCore.BasicAuthentication(request, response);
+      Middlewares.BasicAuthentication(request, response);
 
       //Then
       Assert.Contains(StatusCode._401, response.Headers);
@@ -258,7 +253,7 @@ namespace HttpServer.Test
       var request = new Request(RequestFixtures.SampleAuthorized("GET", "/logs", "abcdexd"));
       //When
 
-      httpServerCore.BasicAuthentication(request, response);
+      Middlewares.BasicAuthentication(request, response);
 
       //Then
       Assert.Contains(StatusCode._401, response.Headers);
@@ -280,7 +275,7 @@ namespace HttpServer.Test
       var request = new Request(RequestFixtures.SampleAuthorized("GET", "/logs", "Basic " + base64));
       //When
 
-      httpServerCore.BasicAuthentication(request, response);
+      Middlewares.BasicAuthentication(request, response);
 
       //Then
       Assert.Contains(StatusCode._200, response.Headers);
@@ -318,7 +313,7 @@ namespace HttpServer.Test
       var request = new Request(RequestFixtures.SampleAuthorized("GET", "/logs", "Basic abcd"));
 
       //When
-      httpServerCore.BasicAuthentication(request, response);
+      Middlewares.BasicAuthentication(request, response);
 
       //Then
       Assert.Contains("WWW-Authenticate", response.Headers);
@@ -331,9 +326,10 @@ namespace HttpServer.Test
       var httpServerCore = new HttpServerCore(_staticPath);
       var response = new Response();
       var request = new Request(RequestFixtures.SampleGet());
+      request.App.StaticPath = _staticPath;
 
       //When
-      httpServerCore.ProcessRoutes(request, response);
+      Middlewares.ProcessRoutes(request, response);
 
       //Then
       Assert.Contains("<a href='/file1'", response.Body);
@@ -352,6 +348,7 @@ namespace HttpServer.Test
       string data = "content for file";
       string path = "/no-there" + DateTime.Now.ToLongTimeString();
       var request = new Request(RequestFixtures.Sample("PUT", path, data));
+      request.App.StaticPath = _staticPath;
 
       //When
       Helper.processMiddleWares(httpServerCore, request, response);
@@ -360,6 +357,7 @@ namespace HttpServer.Test
       Assert.Contains("201 Created", response.Headers);
 
       var request2 = new Request(RequestFixtures.Sample("DELETE", path, data));
+      request2.App.StaticPath = _staticPath;
       Helper.processMiddleWares(httpServerCore, request2, response);
     }
 
@@ -373,12 +371,15 @@ namespace HttpServer.Test
       string data = "content for file";
       string path = "/no-there" + DateTime.Now.ToLongTimeString();
       var request = new Request(RequestFixtures.Sample("PUT", path, data));
+      request.App.StaticPath = _staticPath;
 
       var response2 = new Response();
       var request2 = new Request(RequestFixtures.Sample("DELETE", path));
+      request2.App.StaticPath = _staticPath;
 
       var response3 = new Response();
       var request3 = new Request(RequestFixtures.Sample("GET", path));
+      request3.App.StaticPath = _staticPath;
 
       //When
       Helper.processMiddleWares(httpServerCore, request, response);
@@ -417,12 +418,12 @@ namespace HttpServer.Test
     public static void processMiddleWares(HttpServerCore httpServerCore, Request request, Response response)
     {
       List<Action<Request, Response>> middlewares = new List<Action<Request, Response>>();
-      middlewares.Add(httpServerCore.AllowedMethod);
-      middlewares.Add(httpServerCore.ProcessPublicDirectory);
-      middlewares.Add(httpServerCore.ProcessMethods);
-      middlewares.Add(httpServerCore.ProcessRoutes);
-      middlewares.Add(httpServerCore.ProcessPublicDirectoryRestrictions);
-      middlewares.Add(httpServerCore.ProcessRanges);
+      middlewares.Add(Middlewares.AllowedMethod);
+      middlewares.Add(Middlewares.ProcessPublicDirectory);
+      middlewares.Add(Middlewares.ProcessMethods);
+      middlewares.Add(Middlewares.ProcessRoutes);
+      middlewares.Add(Middlewares.ProcessPublicDirectoryRestrictions);
+      middlewares.Add(Middlewares.ProcessRanges);
 
       httpServerCore.ProcessMiddleWares(middlewares, request, response);
     }

@@ -393,22 +393,23 @@ namespace HttpServer.Test
       Assert.DoesNotContain("content for file", response2.Body);
     }
 
-    // [Fact]
-    // public void Partial_Content_Returns_For_Valid_Start_And_End_Ranges()
-    // {
-    //   //Given
-    //   var httpServerCore = new HttpServerCore(_staticPath);
-    //   var response = new Response();
-    //   string range = "bytes=0-4";
-    //   string path = "/partial_content.txt";
-    //   var request = new Request(RequestFixtures.SampleRange("GET", path, range));
+    [Fact]
+    public void Partial_Content_Returns_For_Valid_Start_And_End_Ranges()
+    {
+      //Given
+      var httpServerCore = new HttpServerCore(_staticPath);
+      var response = new Response();
+      string range = "bytes=0-4";
+      string path = "/partial_content.txt";
+      var request = new Request(RequestFixtures.SampleRange("GET", path, range));
 
-    //   //When
-    //   Helper.processMiddleWares(httpServerCore, request, response);
+      //When
+      Helper.processMiddleWares(httpServerCore, request, response);
 
-    //   //Then
-    //   Assert.Contains("206 Partial Content", response.Headers);
-    // }
+      //Then
+      Assert.Contains("206 Partial Content", response.Headers);
+      Assert.Equal(5, response.ContentLength);
+    }
   }
 
   public class Helper
@@ -417,11 +418,11 @@ namespace HttpServer.Test
     {
       List<Action<Request, Response>> middlewares = new List<Action<Request, Response>>();
       middlewares.Add(httpServerCore.AllowedMethod);
-      middlewares.Add(httpServerCore.BasicAuthentication);
       middlewares.Add(httpServerCore.ProcessPublicDirectory);
       middlewares.Add(httpServerCore.ProcessMethods);
       middlewares.Add(httpServerCore.ProcessRoutes);
       middlewares.Add(httpServerCore.ProcessPublicDirectoryRestrictions);
+      middlewares.Add(httpServerCore.ProcessRanges);
 
       httpServerCore.ProcessMiddleWares(middlewares, request, response);
     }

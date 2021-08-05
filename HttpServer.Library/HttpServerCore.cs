@@ -21,13 +21,12 @@ namespace HttpServer.Library
     {
       this._staticPath = staticPath;
       this._middlewares.Add(AllowedMethod);
-      // this._middlewares.Add(BasicAuthentication);
       this._middlewares.Add(ProcessPublicDirectory);
       this._middlewares.Add(ProcessMethods);
       this._middlewares.Add(ProcessRoutes);
       this._middlewares.Add(ProcessPublicDirectoryRestrictions);
+      // this._middlewares.Add(ProcessRanges);
     }
-
 
     public void Run(int port)
     {
@@ -154,6 +153,28 @@ namespace HttpServer.Library
         File.Delete(path);
         response.SetStatus(StatusCode._200);
         response.SetBody("Deleted");
+      }
+    }
+
+    public void ProcessRanges(Request request, Response response)
+    {
+      if (request.Range != null)
+      {
+        string[] rangeSplit = request.Range.Split("-");
+        int startRange = Int32.Parse(rangeSplit[0]);
+        int endRange = Int32.Parse(rangeSplit[1]);
+        Byte[] newByteData = new Byte[startRange + endRange + 1];
+
+        Byte[] currentByteData = response.BodyBytes;
+        int newByteIndex = 0;
+        for (int i = startRange; i <= endRange; i++)
+        {
+          newByteData[newByteIndex] = currentByteData[i];
+          newByteIndex++;
+        }
+
+        response.SetBody(newByteData);
+        response.SetStatus(StatusCode._206);
       }
     }
 

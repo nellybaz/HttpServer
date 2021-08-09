@@ -17,6 +17,9 @@ namespace HttpServer.Library
     }
 
     private List<Action<Request, Response>> _middlewares = new List<Action<Request, Response>>();
+
+    private List<Middleware> _classMiddlewares = new List<Middleware>();
+
     public HttpServerCore(string staticPath)
     {
       this._staticPath = staticPath;
@@ -33,7 +36,7 @@ namespace HttpServer.Library
     {
       TcpListener server = null;
       Console.WriteLine("Server listening on port: " + port);
-      
+
       try
       {
 
@@ -82,6 +85,7 @@ namespace HttpServer.Library
       Response response = new Response();
 
       ProcessMiddleWares(this._middlewares, request, response);
+      ProcessMiddleWares(this._classMiddlewares, request, response);
 
       HttpServerWorker httpServerWorker = new HttpServerWorker(stream, request, response);
       httpServerWorker.Write();
@@ -95,9 +99,39 @@ namespace HttpServer.Library
       }
     }
 
+    public void ProcessMiddleWares(List<Middleware> middlewares, Request request, Response response)
+    {
+      foreach (var action in middlewares)
+      {
+        if (!response.Halted)
+          action.Run(request, response);
+      }
+    }
+
+    public void ProcessMiddleWares(Request request, Response response)
+    {
+
+      foreach (var action in this._middlewares)
+      {
+        if (!response.Halted)
+          action(request, response);
+      }
+
+      foreach (var action in this._classMiddlewares)
+      {
+        if (!response.Halted)
+          action.Run(request, response);
+      }
+    }
+
     public void AddMiddleWare(Action<Request, Response> middleware)
     {
       this._middlewares.Add(middleware);
+    }
+
+    public void AddMiddleWare(Middleware middleware)
+    {
+      _classMiddlewares.Add(middleware);
     }
   }
 }

@@ -427,6 +427,31 @@ namespace HttpServer.Test
       Assert.Contains("206 Partial Content", response.Headers);
       Assert.Equal(5, response.ContentLength);
     }
+
+    [Fact]
+    public void Adding_Class_Middleware_Modifies_Server_Response()
+    {
+      //Given
+      var server = new HttpServerCore(_staticPath);
+      var request = new Request(RequestFixtures.SampleGet());
+      request.App.StaticPath = _staticPath;
+      var response = new Response();
+
+      //When
+      server.AddMiddleWare(new SetStatusToNotFound());
+      server.ProcessMiddleWares(request, response);
+
+      //Then
+      Assert.Contains(StatusCode._404, response.Headers);
+    }
+  }
+
+  public class SetStatusToNotFound : Middleware
+  {
+    public override void Run(Request request, Response response)
+    {
+      response.SetStatus(StatusCode._404);
+    }
   }
 
   public class Helper

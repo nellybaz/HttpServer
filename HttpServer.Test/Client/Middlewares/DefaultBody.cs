@@ -13,7 +13,7 @@ namespace HttpServer.Test.Client.Middlewares
       var response = new Response();
 
       //When
-      HttpClient.Middlewares.DefaultBody.Run(request, response);
+      new HttpClient.Middlewares.DefaultBody().Run(request, response);
 
       //Then
       Assert.Contains(response.Body, "Client App");

@@ -8,7 +8,9 @@ namespace HttpClient
         {
             var staticPath = "/Users/nbassey/Development/owc/http-server/public";
             int port = 5000;
-            new HttpServerCore(staticPath).Run(port);
+            HttpServerCore httpServerCore = new HttpServerCore(staticPath);
+            httpServerCore.AddMiddleWare(new Middlewares.DefaultBody().Run);
+            httpServerCore.Run(port);
         }
     }
 }

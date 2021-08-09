@@ -8,10 +8,14 @@ namespace HttpClient
         {
             var staticPath = "/Users/nbassey/Development/owc/http-server/public";
             int port = 5000;
-            HttpServerCore httpServerCore = new HttpServerCore(staticPath);
-            httpServerCore.AddMiddleWare(new Middlewares.DefaultBody().Run);
-            httpServerCore.AddMiddleWare(new Middlewares.BasicAuth().Run);
-            httpServerCore.Run(port);
+            HttpServerCore httpServer = new HttpServerCore(staticPath);
+            httpServer.AddMiddleWare(new Middlewares.DefaultBody().Run);
+            httpServer.AddMiddleWare(new Middlewares.BasicAuth().Run);
+
+            // string userName = "";
+            // string password = "";
+            // httpServer.BasicAuth("/logs", userName, password);
+            httpServer.Run(port);
         }
     }
 }

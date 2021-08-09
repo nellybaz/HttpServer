@@ -25,21 +25,21 @@ namespace HttpServer.Test.Client.Middlewares
       Assert.Contains(StatusCode._401, response.Headers);
     }
 
-    // [Fact]
-    // public void Protected_Url_Has_WWW_Authenticate_Header()
-    // {
-    //   //Given
-    //   var httpServerCore = new HttpServerCore(_staticPath);
-    //   var response = new Response();
-    //   var request = new Request(RequestFixtures.SampleAuthorized("GET", "/logs", "Basic abcd"));
+    [Fact]
+    public void Protected_Url_Has_WWW_Authenticate_Header()
+    {
+      //Given
+      var httpServerCore = new HttpServerCore(_staticPath);
+      var response = new Response();
+      var request = new Request(RequestFixtures.SampleAuthorized("GET", "/logs", "Basic abcd"));
 
-    //   //When
-    //   httpServerCore.AddMiddleWare(new BasicAuth().Run);
-    //   httpServerCore.ProcessMiddleWares(request, response);
+      //When
+      httpServerCore.AddMiddleWare(new BasicAuth().Run);
+      httpServerCore.ProcessMiddleWares(request, response);
 
-    //   //Then
-    //   Assert.Contains("WWW-Authenticate", response.Headers);
-    // }
+      //Then
+      Assert.Contains("WWW-Authenticate", response.Headers);
+    }
 
     // [Fact]
     // public void Authenticated_Url_Returns_200_When_Authentication()

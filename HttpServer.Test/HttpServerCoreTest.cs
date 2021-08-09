@@ -360,9 +360,9 @@ namespace HttpServer.Test
     }
   }
 
-  public class SetStatusToNotFound : Middleware
+  public class SetStatusToNotFound : IMiddleware
   {
-    public override void Run(Request request, Response response)
+    public void Run(Request request, Response response)
     {
       response.SetStatus(StatusCode._404);
     }
@@ -372,15 +372,6 @@ namespace HttpServer.Test
   {
     public static void processMiddleWares(HttpServerCore httpServerCore, Request request, Response response)
     {
-      List<Action<Request, Response>> middlewares = new List<Action<Request, Response>>();
-      // middlewares.Add(Middlewares.BasicAuthentication);
-      // httpServerCore.AddMiddleWare(Middlewares.AllowedMethod);
-      // httpServerCore.AddMiddleWare(Middlewares.ProcessPublicDirectory);
-      // httpServerCore.AddMiddleWare(Middlewares.ProcessMethods);
-      // httpServerCore.AddMiddleWare(Middlewares.ProcessRoutes);
-      // httpServerCore.AddMiddleWare(Middlewares.ProcessPublicDirectoryRestrictions);
-      // httpServerCore.AddMiddleWare(Middlewares.ProcessRanges);
-
       httpServerCore.ProcessMiddleWares(request, response);
     }
   }

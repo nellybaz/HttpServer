@@ -3,7 +3,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.IO;
 using System.Collections.Generic;
-using System.Reflection;
+using HttpServer.Library.CoreMiddlewares;
 
 namespace HttpServer.Library
 {
@@ -18,18 +18,26 @@ namespace HttpServer.Library
 
     private List<Action<Request, Response>> _middlewares = new List<Action<Request, Response>>();
 
-    private List<Middleware> _classMiddlewares = new List<Middleware>();
+    private List<IMiddleware> _classMiddlewares = new List<IMiddleware>();
+
+    private IMiddleware _basicAuth = new BasicAuthentication();
 
     public HttpServerCore(string staticPath)
     {
       this._staticPath = staticPath;
-      // this._middlewares.Add(Middlewares.BasicAuthentication);
+      this._classMiddlewares.Add(this._basicAuth);
       this._middlewares.Add(Middlewares.AllowedMethod);
       this._middlewares.Add(Middlewares.ProcessPublicDirectory);
       this._middlewares.Add(Middlewares.ProcessMethods);
       this._middlewares.Add(Middlewares.ProcessRoutes);
       this._middlewares.Add(Middlewares.ProcessPublicDirectoryRestrictions);
       this._middlewares.Add(Middlewares.ProcessRanges);
+    }
+
+    // default of no-auth
+    public void SetBasicAuth(string[] urls, string userName, string password)
+    {
+      this._basicAuth = new BasicAuthentication(urls, userName, password);
     }
 
     public void Run(int port)
@@ -84,30 +92,11 @@ namespace HttpServer.Library
       request.SetStaticPath(this._staticPath);
       Response response = new Response();
 
-      ProcessMiddleWares(this._middlewares, request, response);
-      ProcessMiddleWares(this._classMiddlewares, request, response);
+      ProcessMiddleWares(request, response);
 
       HttpServerWorker httpServerWorker = new HttpServerWorker(stream, request, response);
       httpServerWorker.Write();
     }
-    public void ProcessMiddleWares(List<Action<Request, Response>> middlewares, Request request, Response response)
-    {
-      foreach (var action in middlewares)
-      {
-        if (!response.Halted)
-          action(request, response);
-      }
-    }
-
-    public void ProcessMiddleWares(List<Middleware> middlewares, Request request, Response response)
-    {
-      foreach (var action in middlewares)
-      {
-        if (!response.Halted)
-          action.Run(request, response);
-      }
-    }
-
     public void ProcessMiddleWares(Request request, Response response)
     {
 
@@ -124,12 +113,7 @@ namespace HttpServer.Library
       }
     }
 
-    public void AddMiddleWare(Action<Request, Response> middleware)
-    {
-      this._middlewares.Add(middleware);
-    }
-
-    public void AddMiddleWare(Middleware middleware)
+    public void AddMiddleWare(IMiddleware middleware)
     {
       _classMiddlewares.Add(middleware);
     }

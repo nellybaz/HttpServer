@@ -100,17 +100,19 @@ namespace HttpServer.Library
     public void ProcessMiddleWares(Request request, Response response)
     {
 
+      foreach (var action in this._classMiddlewares)
+      {
+        if (!response.Halted)
+          action.Run(request, response);
+      }
+
       foreach (var action in this._middlewares)
       {
         if (!response.Halted)
           action(request, response);
       }
 
-      foreach (var action in this._classMiddlewares)
-      {
-        if (!response.Halted)
-          action.Run(request, response);
-      }
+
     }
 
     public void AddMiddleWare(IMiddleware middleware)

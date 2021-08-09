@@ -8,21 +8,22 @@ namespace HttpServer.Test.Client.Middlewares
   {
     string _staticPath = "/Users/nbassey/Development/owc/http-server/public";
 
-    // [Fact]
-    // public void Request_With_No_Auth_Headers_Returns_401()
-    // {
-    //   //Given
-    //   var httpServerCore = new HttpServerCore(_staticPath);
-    //   var response = new Response();
-    //   var request = new Request(RequestFixtures.Sample("GET", "/logs"));
+    [Fact]
+    public void Request_With_No_Auth_Headers_Returns_401()
+    {
+      //Given
+      var httpServerCore = new HttpServerCore(_staticPath);
+      var response = new Response();
+      var request = new Request(RequestFixtures.Sample("GET", "/logs"));
 
-    //   //When
-    //   httpServerCore.AddMiddleWare(new BasicAuth().Run);
-    //   Helper.processMiddleWares(httpServerCore, request, response);
+      //When
+      string[] urls = { "/logs" };
+      httpServerCore.SetBasicAuth(urls, "user", "pass");
+      httpServerCore.ProcessMiddleWares(request, response);
 
-    //   //Then
-    //   Assert.Contains(StatusCode._401, response.Headers);
-    // }
+      //Then
+      Assert.Contains(StatusCode._401, response.Headers);
+    }
 
     // [Fact]
     // public void Protected_Url_Has_WWW_Authenticate_Header()

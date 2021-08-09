@@ -229,74 +229,17 @@ namespace HttpServer.Test
     }
 
     [Fact]
-    public void Authenticated_Url_Returns_401_Error_If_Unauthenticated()
-    {
-      //Given
-      var httpServerCore = new HttpServerCore(_staticPath);
-      var response = new Response();
-      var request = new Request(RequestFixtures.SampleAuthorized("GET", "/logs", "Basic abcd"));
-      //When
-
-      Middlewares.BasicAuthentication(request, response);
-
-      //Then
-      Assert.Contains(StatusCode._401, response.Headers);
-    }
-
-
-    [Fact]
-    public void Authenticated_Url_Returns_401_Error_For_Bad_Authentication()
-    {
-      //Given
-      var httpServerCore = new HttpServerCore(_staticPath);
-      var response = new Response();
-      var request = new Request(RequestFixtures.SampleAuthorized("GET", "/logs", "abcdexd"));
-      //When
-
-      Middlewares.BasicAuthentication(request, response);
-
-      //Then
-      Assert.Contains(StatusCode._401, response.Headers);
-    }
-
-    [Fact]
-    public void Authenticated_Url_Returns_200_When_Authentication()
-    {
-      //Given
-
-      string userName = "admin";
-      string password = "hunter2";
-
-      Byte[] byteData = System.Text.Encoding.ASCII.GetBytes(userName + ":" + password);
-      string base64 = Convert.ToBase64String(byteData);
-
-      var httpServerCore = new HttpServerCore(_staticPath);
-      var response = new Response();
-      var request = new Request(RequestFixtures.SampleAuthorized("GET", "/logs", "Basic " + base64));
-      //When
-
-      Middlewares.BasicAuthentication(request, response);
-
-      //Then
-      Assert.Contains(StatusCode._200, response.Headers);
-    }
-
-    [Fact]
     public void Halted_Response_Skips_Subsequent_MiddleWares()
     {
       //Given
 
-      string userName = "admin";
-      string password = "hunter";
-
-      Byte[] byteData = System.Text.Encoding.ASCII.GetBytes(userName + ":" + password);
-      string base64 = Convert.ToBase64String(byteData);
-
       var httpServerCore = new HttpServerCore(_staticPath);
       var response = new Response();
-      var request = new Request(RequestFixtures.SampleAuthorized("GET", "/logs", "Basic " + base64));
+      var request = new Request(RequestFixtures.SampleGet());
 
       //When
+      response.SetStatus(StatusCode._401);
+      response.Halt();
       Helper.processMiddleWares(httpServerCore, request, response);
 
 
@@ -304,36 +247,7 @@ namespace HttpServer.Test
       Assert.Contains(StatusCode._401, response.Headers);
     }
 
-
-    [Fact]
-    public void Request_With_No_Auth_Headers_Returns_401()
-    {
-      //Given
-      var httpServerCore = new HttpServerCore(_staticPath);
-      var response = new Response();
-      var request = new Request(RequestFixtures.Sample("GET", "/logs"));
-
-      //When
-      Helper.processMiddleWares(httpServerCore, request, response);
-
-      //Then
-      Assert.Contains(StatusCode._401, response.Headers);
-    }
-
-    [Fact]
-    public void Protected_Url_Has_WWW_Authenticate_Header()
-    {
-      //Given
-      var httpServerCore = new HttpServerCore(_staticPath);
-      var response = new Response();
-      var request = new Request(RequestFixtures.SampleAuthorized("GET", "/logs", "Basic abcd"));
-
-      //When
-      Middlewares.BasicAuthentication(request, response);
-
-      //Then
-      Assert.Contains("WWW-Authenticate", response.Headers);
-    }
+    
 
     [Fact]
     public void ProcessRoutes_List_Files_For_Index_Url()
@@ -459,15 +373,15 @@ namespace HttpServer.Test
     public static void processMiddleWares(HttpServerCore httpServerCore, Request request, Response response)
     {
       List<Action<Request, Response>> middlewares = new List<Action<Request, Response>>();
-      middlewares.Add(Middlewares.BasicAuthentication);
-      middlewares.Add(Middlewares.AllowedMethod);
-      middlewares.Add(Middlewares.ProcessPublicDirectory);
-      middlewares.Add(Middlewares.ProcessMethods);
-      middlewares.Add(Middlewares.ProcessRoutes);
-      middlewares.Add(Middlewares.ProcessPublicDirectoryRestrictions);
-      middlewares.Add(Middlewares.ProcessRanges);
+      // middlewares.Add(Middlewares.BasicAuthentication);
+      // httpServerCore.AddMiddleWare(Middlewares.AllowedMethod);
+      // httpServerCore.AddMiddleWare(Middlewares.ProcessPublicDirectory);
+      // httpServerCore.AddMiddleWare(Middlewares.ProcessMethods);
+      // httpServerCore.AddMiddleWare(Middlewares.ProcessRoutes);
+      // httpServerCore.AddMiddleWare(Middlewares.ProcessPublicDirectoryRestrictions);
+      // httpServerCore.AddMiddleWare(Middlewares.ProcessRanges);
 
-      httpServerCore.ProcessMiddleWares(middlewares, request, response);
+      httpServerCore.ProcessMiddleWares(request, response);
     }
   }
 }

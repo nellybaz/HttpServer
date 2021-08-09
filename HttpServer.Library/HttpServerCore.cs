@@ -23,13 +23,13 @@ namespace HttpServer.Library
     public HttpServerCore(string staticPath)
     {
       this._staticPath = staticPath;
-      this._middlewares.Add(Middlewares.BasicAuthentication);
+      // this._middlewares.Add(Middlewares.BasicAuthentication);
       this._middlewares.Add(Middlewares.AllowedMethod);
       this._middlewares.Add(Middlewares.ProcessPublicDirectory);
       this._middlewares.Add(Middlewares.ProcessMethods);
       this._middlewares.Add(Middlewares.ProcessRoutes);
       this._middlewares.Add(Middlewares.ProcessPublicDirectoryRestrictions);
-      // this._middlewares.Add(Middlewares.ProcessRanges);
+      this._middlewares.Add(Middlewares.ProcessRanges);
     }
 
     public void Run(int port)

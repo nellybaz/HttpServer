@@ -3,7 +3,7 @@ using HttpServer.Library;
 using HttpClient;
 namespace HttpServer.Test.Client.Middlewares
 {
-  public class DefaultBody
+  public class DefaultBodyTest
   {
     [Fact]
     public void Run_Sets_Response_Body_To_Default_Message()

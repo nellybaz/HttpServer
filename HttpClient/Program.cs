@@ -10,6 +10,7 @@ namespace HttpClient
             int port = 5000;
             HttpServerCore httpServerCore = new HttpServerCore(staticPath);
             httpServerCore.AddMiddleWare(new Middlewares.DefaultBody().Run);
+            httpServerCore.AddMiddleWare(new Middlewares.BasicAuth().Run);
             httpServerCore.Run(port);
         }
     }

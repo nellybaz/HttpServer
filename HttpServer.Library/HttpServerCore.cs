@@ -74,12 +74,6 @@ namespace HttpServer.Library
       return data;
     }
 
-
-
-    private Byte[] BytesFromArray(string data)
-    {
-      return System.Text.Encoding.ASCII.GetBytes(data);
-    }
     public void HandleRequest(Stream stream)
     {
       string dataFromStream = GetStreamData(stream);

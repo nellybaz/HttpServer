@@ -8,6 +8,8 @@ namespace HttpServer.Library
 
     public static readonly string _206 = "206 Partial Content";
 
+     public static readonly string _302 = "302 Found";
+
     public static readonly string _401 = "401 Unauthorized";
     public static readonly string _404 = "404 Not Found";
 

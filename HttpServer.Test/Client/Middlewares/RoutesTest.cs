@@ -296,5 +296,46 @@ namespace HttpServer.Test.Client.Middlewares
       //Then
       Assert.Contains(StatusCode._200, response.Headers);
     }
+
+    [Fact]
+    public void Decode_Request_With_Parameter()
+    {
+      // Given
+      var httpServerCore = new HttpServerCore(_staticPath);
+      var response = new Response();
+      string url =
+      // "/parameters?variable_1=Operators%20%3C%2C%20%3E%2C%20%3D%2C%20!%3D%3B%20%2B%2C%20-%2C%20*%2C%20%26%2C%20%40%2C%20%23%2C%20%24%2C%20%5B%2C%20%5D%3A%20%22is%20that%20all%22%3F&variable_2=stuff";
+      "/parameters?variable_1=a%20query%20string%20parameter";
+      var request = new Request(RequestFixtures.Sample("GET", url));
+      request.App.StaticPath = _staticPath;
+
+      //When
+      httpServerCore.AddMiddleWare(new Routes());
+      httpServerCore.ProcessMiddleWares(request, response);
+
+      //Then
+      string expected = "variable_1 = a query string parameter";
+      Assert.Contains(StatusCode._200, response.Headers);
+      Assert.Equal(expected, response.Body);
+    }
+
+
+    [Fact]
+    public void Redirect_Request_Returns_302()
+    {
+      // Given
+      var httpServerCore = new HttpServerCore(_staticPath);
+      var response = new Response();
+      var request = new Request(RequestFixtures.Sample("GET", "/redirect"));
+      request.App.StaticPath = _staticPath;
+
+      //When
+      httpServerCore.AddMiddleWare(new Routes());
+      httpServerCore.ProcessMiddleWares(request, response);
+
+      //Then
+      Assert.Contains(StatusCode._302, response.Headers);
+      Assert.Contains("/", response.Headers);
+    }
   }
 }

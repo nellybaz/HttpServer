@@ -120,6 +120,18 @@ namespace HttpClient.Middlewares
       {
         response.SetStatus(StatusCode._200);
       }
+
+      if (request.Url.Contains("/parameter") && request.Method == RequestMethod.GET)
+      {
+        response.SetStatus(StatusCode._200);
+        response.SetBody(request.Query);
+      }
+
+       if (request.Url.Contains("/redirect") && request.Method == RequestMethod.GET)
+      {
+        response.SetStatus(StatusCode._302);
+        response.SetLocation("/");
+      }
     }
   }
 }

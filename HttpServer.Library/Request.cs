@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Web;
 
 namespace HttpServer.Library
 {
@@ -30,9 +31,13 @@ namespace HttpServer.Library
       get => _range;
     }
 
+    public string Query
+    {
+      get => DecodeQuery();
+    }
     public App App = new App();
     public string Authorization;
-    
+
 
     public Request(string dataFromStream)
     {
@@ -64,15 +69,28 @@ namespace HttpServer.Library
         {
           _range = item.Split("=")[1];
         }
-        if(item.Contains("Cookie")){
-            
-        }
       }
     }
 
     internal void SetStaticPath(string value)
     {
       App.StaticPath = value;
+    }
+
+    public string DecodeQuery()
+    {
+      string queryString = this.Url.Split("?")[1];
+      string decodedQuery = HttpUtility.UrlDecode(queryString);
+      string output = "";
+      foreach (var character in decodedQuery)
+      {
+        if (character == '=')
+        {
+          output += " " + character + " ";
+        }
+        else { output += character; }
+      }
+      return output;
     }
   }
 }

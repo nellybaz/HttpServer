@@ -109,6 +109,17 @@ namespace HttpClient.Middlewares
         response.SetBody("mmmm chocolate");
         response.SetCookie("mmmm chocolate");
       }
+
+      if (request.Url.Contains("/coffee") && request.Method == RequestMethod.GET)
+      {
+        response.SetStatus(StatusCode._418);
+        response.SetBody("I'm a teapot");
+      }
+
+      if (request.Url.Contains("/tea") && request.Method == RequestMethod.GET)
+      {
+        response.SetStatus(StatusCode._200);
+      }
     }
   }
 }

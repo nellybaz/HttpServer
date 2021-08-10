@@ -13,6 +13,12 @@ namespace HttpServer.Library
       set => _status = value;
     }
 
+    private string _location;
+    public string Location
+    {
+      get => _location;
+    }
+
 
     private string _mime;
     public string Mime
@@ -83,7 +89,7 @@ namespace HttpServer.Library
 
     public Response()
     {
-      _status = StatusCode._200;
+      // _status = StatusCode._200;
       _mime = "text/html;";
       _version = "HTTP/1.1";
       _encoding = "charset=utf-8";
@@ -96,6 +102,11 @@ namespace HttpServer.Library
       _body = message;
       _bodyByte = System.Text.Encoding.ASCII.GetBytes(_body);
       _contentLength = BodyBytes.Length;
+    }
+
+    public void SetLocation(string value)
+    {
+      this._location = value;
     }
 
     public void SetStatus(string status)
@@ -120,7 +131,11 @@ namespace HttpServer.Library
 
       string authenticate = "";
       if (_authenticate) authenticate = $"WWW-Authenticate: Basic realm='Access to resource', charset='UTF-8'{newLine}";
-      string headers = $"{_version} {_status}{newLine}{method}Server: {_server}{newLine}Content-Type: {_mime} {_encoding}{newLine}{authenticate}Accept-Ranges: bytes{newLine}Content-Length: {_contentLength}{newLine}{newLine}";
+
+      string location = "";
+      if (_location != null) location = $"Location: {_location}{newLine}";
+
+      string headers = $"{_version} {_status}{newLine}{method}Server: {_server}{newLine}Content-Type: {_mime} {_encoding}{newLine}{authenticate}{location}Accept-Ranges: bytes{newLine}Content-Length: {_contentLength}{newLine}{newLine}";
       return headers;
     }
   }

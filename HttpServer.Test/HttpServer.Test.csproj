@@ -21,6 +21,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\HttpServer.Library\HttpServer.Library.csproj" />
+    <ProjectReference Include="..\HttpClient\HttpClient.csproj" />
   </ItemGroup>
 
 </Project>

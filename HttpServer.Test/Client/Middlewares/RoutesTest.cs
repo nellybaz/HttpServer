@@ -261,5 +261,23 @@ namespace HttpServer.Test.Client.Middlewares
       Assert.Contains("mmmm chocolate", response.Body);
       Assert.Contains("Set-Cookie:", response.Headers);
     }
+
+     [Fact]
+    public void FourEighteen_Status_Code_For_Coffee_Route()
+    {
+      // Given
+      var httpServerCore = new HttpServerCore(_staticPath);
+      var response = new Response();
+      var request = new Request(RequestFixtures.Sample("GET", "/coffee"));
+      request.App.StaticPath = _staticPath;
+
+      //When
+      httpServerCore.AddMiddleWare(new Routes());
+      httpServerCore.ProcessMiddleWares(request, response);
+
+      //Then
+      Assert.Contains(StatusCode._418, response.Headers);
+      Assert.Contains("I'm a teapot", response.Body);
+    }
   }
 }

@@ -5,6 +5,7 @@ using HttpServer.Library;
 using System.Net.Sockets;
 using System.Threading;
 using System.Collections.Generic;
+using HttpServer.Library.CoreMiddlewares;
 
 namespace HttpServer.Test
 {
@@ -101,9 +102,10 @@ namespace HttpServer.Test
       var request = new Request(RequestFixtures.SampleGet("/file1"));
       request.App.StaticPath = _staticPath;
       var response = new Response();
-      //When
 
-      Middlewares.ProcessPublicDirectory(request, response);
+      //When
+      new PublicDirectory().Run(request, response);
+
       //Then
       Assert.Equal("file1 contents", response.Body);
     }
@@ -207,8 +209,8 @@ namespace HttpServer.Test
       request.App.StaticPath = _staticPath;
       //When
 
-      Middlewares.ProcessPublicDirectory(request, response);
-      Middlewares.ProcessPublicDirectoryRestrictions(request, response);
+      new PublicDirectory().Run(request, response);
+      // Middlewares.ProcessPublicDirectory(request, response);
 
       //Then
       Assert.Contains(StatusCode._405, response.Headers);
@@ -222,7 +224,7 @@ namespace HttpServer.Test
       var request = new Request(RequestFixtures.Sample("BOGUS", "/file1"));
       //When
 
-      Middlewares.AllowedMethod(request, response);
+      Middlewares.ProcessMethods(request, response);
 
       //Then
       Assert.Contains(StatusCode._501, response.Headers);
@@ -247,7 +249,7 @@ namespace HttpServer.Test
       Assert.Contains(StatusCode._401, response.Headers);
     }
 
-    
+
 
     [Fact]
     public void ProcessRoutes_List_Files_For_Index_Url()

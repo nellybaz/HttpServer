@@ -7,22 +7,6 @@ namespace HttpServer.Library
 {
   public class Middlewares
   {
-    public static void AllowedMethod(Request request, Response response)
-    {
-      if (!RequestMethod.IsValid(request.Method))
-      {
-        response.Status = StatusCode._501;
-      }
-    }
-
-    public static void ProcessPublicDirectoryRestrictions(Request request, Response response)
-    {
-      if (request.IsPath && request.Method == RequestMethod.POST)
-      {
-        response.Status = StatusCode._405;
-        response.SetBody("");
-      }
-    }
 
     public static void ProcessRoutes(Request request, Response response)
     {
@@ -94,6 +78,11 @@ namespace HttpServer.Library
 
     public static void ProcessMethods(Request request, Response response)
     {
+       if (!RequestMethod.IsValid(request.Method))
+      {
+        response.Status = StatusCode._501;
+      }
+
       if (request.Method == RequestMethod.OPTIONS)
       {
         response.Methods = "GET, HEAD, OPTIONS, PUT, DELETE";
@@ -127,26 +116,6 @@ namespace HttpServer.Library
         File.Delete(path);
         response.SetStatus(StatusCode._200);
         response.SetBody("Deleted");
-      }
-    }
-
-    public static void ProcessPublicDirectory(Request request, Response response)
-    {
-      response.SetBody("");
-      if (request.Url == "/") return;
-      try
-      {
-        string path = request.App.StaticPath + request.Url;
-        Byte[] byteData = File.ReadAllBytes(path);
-        response.SetBody(byteData);
-        response.Mime = MimeType.GetMimeType(request.Url);
-        request.IsPath = true;
-      }
-      catch (System.Exception)
-      {
-        string message = "<html><h2>Page not found</h2></html>";
-        response.SetBody(message);
-        response.Status = StatusCode._404;
       }
     }
   }

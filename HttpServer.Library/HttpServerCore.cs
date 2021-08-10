@@ -92,13 +92,7 @@ namespace HttpServer.Library
     }
     public void ProcessMiddleWares(Request request, Response response)
     {
-      this._classMiddlewares.Add(this._basicAuth);
-      this._middlewares.Add(Middlewares.AllowedMethod);
-      this._middlewares.Add(Middlewares.ProcessPublicDirectory);
-      this._middlewares.Add(Middlewares.ProcessMethods);
-      this._middlewares.Add(Middlewares.ProcessRoutes);
-      this._middlewares.Add(Middlewares.ProcessPublicDirectoryRestrictions);
-      this._middlewares.Add(Middlewares.ProcessRanges);
+      RegisterMiddleWares();
 
       foreach (var action in this._classMiddlewares)
       {
@@ -112,6 +106,24 @@ namespace HttpServer.Library
           action(request, response);
       }
 
+
+    }
+
+    private void RegisterMiddleWares()
+    {
+      if (this._classMiddlewares.ToArray().Length < 1)
+      {
+        this._classMiddlewares.Add(this._basicAuth);
+        this._classMiddlewares.Add(new PublicDirectory());
+      }
+
+
+      if (this._middlewares.ToArray().Length < 1)
+      {
+        this._middlewares.Add(Middlewares.ProcessMethods);
+        this._middlewares.Add(Middlewares.ProcessRoutes);
+        // this._middlewares.Add(Middlewares.ProcessRanges);
+      }
 
     }
 

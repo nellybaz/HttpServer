@@ -25,13 +25,6 @@ namespace HttpServer.Library
     public HttpServerCore(string staticPath)
     {
       this._staticPath = staticPath;
-      this._classMiddlewares.Add(this._basicAuth);
-      this._middlewares.Add(Middlewares.AllowedMethod);
-      this._middlewares.Add(Middlewares.ProcessPublicDirectory);
-      this._middlewares.Add(Middlewares.ProcessMethods);
-      this._middlewares.Add(Middlewares.ProcessRoutes);
-      this._middlewares.Add(Middlewares.ProcessPublicDirectoryRestrictions);
-      this._middlewares.Add(Middlewares.ProcessRanges);
     }
 
     // default of no-auth
@@ -99,6 +92,13 @@ namespace HttpServer.Library
     }
     public void ProcessMiddleWares(Request request, Response response)
     {
+      this._classMiddlewares.Add(this._basicAuth);
+      this._middlewares.Add(Middlewares.AllowedMethod);
+      this._middlewares.Add(Middlewares.ProcessPublicDirectory);
+      this._middlewares.Add(Middlewares.ProcessMethods);
+      this._middlewares.Add(Middlewares.ProcessRoutes);
+      this._middlewares.Add(Middlewares.ProcessPublicDirectoryRestrictions);
+      this._middlewares.Add(Middlewares.ProcessRanges);
 
       foreach (var action in this._classMiddlewares)
       {

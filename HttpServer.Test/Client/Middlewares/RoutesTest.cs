@@ -22,6 +22,7 @@ namespace HttpServer.Test.Client.Middlewares
       new Routes().Run(request, response);
 
       //Then
+      Assert.Contains(StatusCode._200, response.Headers);
       Assert.Contains("<a href='/file1'", response.Body);
       Assert.Contains("<a href='/file2'", response.Body);
       Assert.Contains("<a href='/image.gif'", response.Body);
@@ -57,6 +58,25 @@ namespace HttpServer.Test.Client.Middlewares
       //Then
       Assert.Contains(StatusCode._200, response.Headers);
       Assert.Contains("GET /logs HTTP/1.1", response.Body);
+    }
+
+
+    [Fact]
+    public void Head_Request_To_Index_Returns_200()
+    {
+      //Given
+      var httpServerCore = new HttpServerCore(_staticPath);
+      var response = new Response();
+      var request = new Request(RequestFixtures.Sample("HEAD", "/"));
+      request.App.StaticPath = _staticPath;
+
+      //When
+      httpServerCore.AddMiddleWare(new Routes());
+
+      httpServerCore.ProcessMiddleWares(request, response);
+
+      //Then
+      Assert.Contains(StatusCode._200, response.Headers);
     }
   }
 }

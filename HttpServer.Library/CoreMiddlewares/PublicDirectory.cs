@@ -15,6 +15,7 @@ namespace HttpServer.Library.CoreMiddlewares
       {
         string path = request.App.StaticPath + request.Url;
         Byte[] byteData = File.ReadAllBytes(path);
+        response.SetStatus(StatusCode._200);
         response.SetBody(byteData);
         response.Mime = MimeType.GetMimeType(request.Url);
         request.IsPath = true;

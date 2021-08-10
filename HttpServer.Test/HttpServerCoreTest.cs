@@ -108,6 +108,7 @@ namespace HttpServer.Test
 
       //Then
       Assert.Equal("file1 contents", response.Body);
+      Assert.Contains(StatusCode._200, response.Headers);
     }
 
     [Fact]
@@ -176,7 +177,7 @@ namespace HttpServer.Test
       var response = new Response();
 
       //When
-      
+
       var allowedMethods = new Dictionary<String, String>();
       allowedMethods.Add("/logs", "GET, HEAD, OPTIONS");
       new HttpMethods(allowedMethods).Run(request, response);
@@ -313,24 +314,6 @@ namespace HttpServer.Test
       Assert.DoesNotContain("content for file", response2.Body);
     }
 
-    [Fact(Skip="true")] 
-    public void Partial_Content_Returns_For_Valid_Start_And_End_Ranges()
-    {
-      //Given
-      var httpServerCore = new HttpServerCore(_staticPath);
-      var response = new Response();
-      string range = "bytes=0-4";
-      string path = "/partial_content.txt";
-      var request = new Request(RequestFixtures.SampleRange("GET", path, range));
-
-      //When
-      Helper.processMiddleWares(httpServerCore, request, response);
-
-      //Then
-      Assert.Contains("206 Partial Content", response.Headers);
-      Assert.Equal(5, response.ContentLength);
-    }
-
     [Fact]
     public void Adding_Class_Middleware_Modifies_Server_Response()
     {
@@ -346,6 +329,64 @@ namespace HttpServer.Test
 
       //Then
       Assert.Contains(StatusCode._404, response.Headers);
+    }
+
+    [Fact]
+    public void Head_Request_To_No_File_Returns_404()
+    {
+      //Given
+      var httpServer = new HttpServerCore(_staticPath);
+      var request = new Request(RequestFixtures.Sample("HEAD", "/no_file_here.txt"));
+      var response = new Response();
+
+      //When
+
+      httpServer.ProcessMiddleWares(request, response);
+      //Then
+      Assert.Contains(StatusCode._404, response.Headers);
+    }
+
+     [Fact]
+    public void Partial_Content_Returns_For_Valid_Start_And_End_Ranges()
+    {
+      //Given
+      var httpServerCore = new HttpServerCore(_staticPath);
+      var response = new Response();
+      string range = "bytes=0-4";
+      string path = "/partial_content.txt";
+      var request = new Request(RequestFixtures.SampleRange("GET", path, range));
+
+      //When
+      Helper.processMiddleWares(httpServerCore, request, response);
+
+      //Then
+      Assert.Contains(StatusCode._206, response.Headers);
+      Assert.Equal(5, response.ContentLength);
+    }
+
+     [Fact]
+    public void Range_Request_Without_Start_Index()
+    {
+      //Given
+      var httpServerCore = new HttpServerCore(_staticPath);
+      var response = new Response();
+      string range = "bytes=-6";
+      string path = "/partial_content.txt";
+      var request = new Request(RequestFixtures.SampleRange("GET", path, range));
+      request.App.StaticPath = _staticPath;
+
+      string fileContents = "This is a file that contains text to read part of in order to fulfill a 206.";
+      Byte[] contentBytes  = System.Text.Encoding.ASCII.GetBytes(fileContents);
+      Index start = ^6;
+      Index end = ^0;
+      var expected = contentBytes[start..end];
+      
+      //When
+      Helper.processMiddleWares(httpServerCore, request, response);
+
+      //Then
+      Assert.Contains(StatusCode._206, response.Headers);
+      Assert.Equal(expected, response.BodyBytes);
     }
   }
 

@@ -119,6 +119,7 @@ namespace HttpServer.Library
         this._coreMiddlewares.Add(this._basicAuthMiddleware);
         this._coreMiddlewares.Add(new PublicDirectory());
         this._coreMiddlewares.Add(this._httpMethodsMiddleware);
+        this._coreMiddlewares.Add(new RangeMiddleware());
       }
 
     }

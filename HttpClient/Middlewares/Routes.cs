@@ -1,3 +1,5 @@
+using System;
+using System.Collections.Generic;
 using System.IO;
 using HttpServer.Library;
 
@@ -7,10 +9,18 @@ namespace HttpClient.Middlewares
   {
     public void Run(Request request, Response response)
     {
+      List<string> routes = new List<string>();
+      routes.Add("/");
+      routes.Add("/logs");
+
+      if (Array.Exists(routes.ToArray(), (url) => request.Url == url))
+      {
+        request.IsRoute = true;
+        response.SetStatus(StatusCode._200);
+      }
 
       if (request.Url == "/" && request.Method == RequestMethod.GET)
       {
-        request.IsRoute = true;
         string links = "";
         string[] files = Directory.GetFiles(request.App.StaticPath);
         foreach (var file in files)
@@ -19,13 +29,13 @@ namespace HttpClient.Middlewares
           links += $"<a href='{url}'>{url}</a></br>";
         }
         string body = $"<html>{links}</html>";
+        response.SetStatus(StatusCode._200);
         response.SetBody(body);
         return;
       }
 
       if (request.Url == "/logs")
       {
-        request.IsRoute = true;
         if (request.Authenticated)
         {
           if (request.Method == RequestMethod.POST)

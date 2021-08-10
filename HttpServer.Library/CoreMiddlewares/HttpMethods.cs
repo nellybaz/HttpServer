@@ -28,8 +28,12 @@ namespace HttpServer.Library.CoreMiddlewares
       }
 
       SetAllowedMethods(request, response);
-      
-      if (request.Method == RequestMethod.HEAD) response.SetBody("");
+
+      if (request.Method == RequestMethod.HEAD && (request.IsPath || request.IsRoute))
+      {
+        response.SetStatus(StatusCode._200);
+        response.SetBody("");
+      }
 
       string path = request.App.StaticPath + request.Url;
 

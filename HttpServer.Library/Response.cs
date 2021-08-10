@@ -85,7 +85,7 @@ namespace HttpServer.Library
     private string _version;
     private string _encoding;
     private string _server;
-
+    private string _cookie;
 
     public Response()
     {
@@ -135,8 +135,16 @@ namespace HttpServer.Library
       string location = "";
       if (_location != null) location = $"Location: {_location}{newLine}";
 
-      string headers = $"{_version} {_status}{newLine}{method}Server: {_server}{newLine}Content-Type: {_mime} {_encoding}{newLine}{authenticate}{location}Accept-Ranges: bytes{newLine}Content-Length: {_contentLength}{newLine}{newLine}";
+      string cookie = "";
+      if (_cookie != null) cookie = $"Set-Cookie: {_cookie}{newLine}";
+
+      string headers = $"{_version} {_status}{newLine}{method}Server: {_server}{newLine}Content-Type: {_mime} {_encoding}{newLine}{authenticate}{location}{cookie}Accept-Ranges: bytes{newLine}Content-Length: {_contentLength}{newLine}{newLine}";
       return headers;
+    }
+
+    public void SetCookie(string value)
+    {
+      this._cookie = value;
     }
   }
 }

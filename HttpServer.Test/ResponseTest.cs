@@ -12,7 +12,9 @@ namespace HttpServer.Test
     {
       //Given
       Response response = new Response();
+
       //When
+      response.SetStatus(StatusCode._200);
       string status = "200 OK";
       string version = "HTTP/1.1";
       string mime = "text/html;";
@@ -49,7 +51,9 @@ namespace HttpServer.Test
     {
       //Given
       Response response = new Response();
+      
       //When
+      response.SetStatus(StatusCode._200);
       string status = "200 OK";
       string version = "HTTP/1.1";
       string mime = "text/html;";

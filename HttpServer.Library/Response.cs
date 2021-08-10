@@ -83,7 +83,7 @@ namespace HttpServer.Library
 
     public Response()
     {
-      _status = StatusCode._200;
+      // _status = StatusCode._200;
       _mime = "text/html;";
       _version = "HTTP/1.1";
       _encoding = "charset=utf-8";

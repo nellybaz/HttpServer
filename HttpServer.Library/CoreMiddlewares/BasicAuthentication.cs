@@ -49,6 +49,7 @@ namespace HttpServer.Library.CoreMiddlewares
           else
           {
             request.Authenticated = true;
+            response.SetStatus(StatusCode._200);
           }
         }
         catch (System.Exception)

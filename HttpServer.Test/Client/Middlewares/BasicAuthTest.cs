@@ -65,7 +65,6 @@ namespace HttpServer.Test.Client.Middlewares
 
       //Then
       Assert.Contains(StatusCode._200, response.Headers);
-      Assert.Contains("GET /logs HTTP/1.1", response.Body);
     }
 
     [Fact]

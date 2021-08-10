@@ -7,8 +7,10 @@ namespace HttpServer.Library.CoreMiddlewares
   {
     public void Run(Request request, Response response)
     {
+      if (request.IsRoute) return;
+
       response.SetBody("");
-      if (request.Url == "/") return;
+
       try
       {
         string path = request.App.StaticPath + request.Url;
@@ -19,9 +21,12 @@ namespace HttpServer.Library.CoreMiddlewares
       }
       catch (System.Exception)
       {
-        string message = "<html><h2>Page not found</h2></html>";
-        response.SetBody(message);
-        response.Status = StatusCode._404;
+        if (response.Status == null)
+        {
+          string message = "<html><h2>Page not found</h2></html>";
+          response.SetBody(message);
+          response.Status = StatusCode._404;
+        }
       }
 
       if (request.IsPath && request.Method == RequestMethod.POST)

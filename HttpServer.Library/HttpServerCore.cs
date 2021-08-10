@@ -16,21 +16,26 @@ namespace HttpServer.Library
       get => _staticPath;
     }
 
-    private List<Action<Request, Response>> _middlewares = new List<Action<Request, Response>>();
+    private List<IMiddleware> _middlewares = new List<IMiddleware>();
+    private List<IMiddleware> _coreMiddlewares = new List<IMiddleware>();
 
-    private List<IMiddleware> _classMiddlewares = new List<IMiddleware>();
-
-    private IMiddleware _basicAuth = new BasicAuthentication();
+    private IMiddleware _basicAuthMiddleware = new BasicAuthentication();
+    private IMiddleware _httpMethodsMiddleware = new HttpMethods();
 
     public HttpServerCore(string staticPath)
     {
       this._staticPath = staticPath;
     }
 
+    public void SetAllowedMethods(Dictionary<string, string> allowedMethods)
+    {
+      this._httpMethodsMiddleware = new HttpMethods(allowedMethods);
+    }
+
     // default of no-auth
     public void SetBasicAuth(string[] urls, string userName, string password)
     {
-      this._basicAuth = new BasicAuthentication(urls, userName, password);
+      this._basicAuthMiddleware = new BasicAuthentication(urls, userName, password);
     }
 
     public void Run(int port)
@@ -94,7 +99,7 @@ namespace HttpServer.Library
     {
       RegisterMiddleWares();
 
-      foreach (var action in this._classMiddlewares)
+      foreach (var action in this._coreMiddlewares)
       {
         if (!response.Halted)
           action.Run(request, response);
@@ -103,33 +108,24 @@ namespace HttpServer.Library
       foreach (var action in this._middlewares)
       {
         if (!response.Halted)
-          action(request, response);
+          action.Run(request, response);
       }
-
-
     }
 
     private void RegisterMiddleWares()
     {
-      if (this._classMiddlewares.ToArray().Length < 1)
+      if (this._coreMiddlewares.ToArray().Length < 1)
       {
-        this._classMiddlewares.Add(this._basicAuth);
-        this._classMiddlewares.Add(new PublicDirectory());
-        this._classMiddlewares.Add(new HttpMethods());
-      }
-
-
-      if (this._middlewares.ToArray().Length < 1)
-      {
-        this._middlewares.Add(Middlewares.ProcessRoutes);
-        // this._middlewares.Add(Middlewares.ProcessRanges);
+        this._coreMiddlewares.Add(this._basicAuthMiddleware);
+        this._coreMiddlewares.Add(new PublicDirectory());
+        this._coreMiddlewares.Add(this._httpMethodsMiddleware);
       }
 
     }
 
     public void AddMiddleWare(IMiddleware middleware)
     {
-      _classMiddlewares.Add(middleware);
+      _middlewares.Add(middleware);
     }
   }
 }

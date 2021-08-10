@@ -8,6 +8,7 @@ namespace HttpServer.Library
     public string Url;
     public string Method;
     public bool IsPath;
+    public bool IsRoute;
 
     private bool _authenticated;
 
@@ -31,6 +32,8 @@ namespace HttpServer.Library
 
     public App App = new App();
     public string Authorization;
+    
+
     public Request(string dataFromStream)
     {
 

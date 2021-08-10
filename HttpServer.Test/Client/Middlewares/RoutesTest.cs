@@ -223,5 +223,43 @@ namespace HttpServer.Test.Client.Middlewares
       //Then
       Assert.Contains(StatusCode._404, response4.Headers);
     }
+
+    [Fact]
+    public void Cookie_Route()
+    {
+      // Given
+      var httpServerCore = new HttpServerCore(_staticPath);
+      var response = new Response();
+      var request = new Request(RequestFixtures.Sample("GET", "/cookie?type=chocolate"));
+      request.App.StaticPath = _staticPath;
+
+      //When
+      httpServerCore.AddMiddleWare(new Routes());
+      httpServerCore.ProcessMiddleWares(request, response);
+
+      //Then
+      Assert.Contains(StatusCode._200, response.Headers);
+      Assert.Contains("Eat", response.Body);
+    }
+
+
+    [Fact]
+    public void Eat_Cookie_Route()
+    {
+      // Given
+      var httpServerCore = new HttpServerCore(_staticPath);
+      var response = new Response();
+      var request = new Request(RequestFixtures.Sample("GET", "/eat_cookie"));
+      request.App.StaticPath = _staticPath;
+
+      //When
+      httpServerCore.AddMiddleWare(new Routes());
+      httpServerCore.ProcessMiddleWares(request, response);
+
+      //Then
+      Assert.Contains(StatusCode._200, response.Headers);
+      Assert.Contains("mmmm chocolate", response.Body);
+      Assert.Contains("Set-Cookie:", response.Headers);
+    }
   }
 }

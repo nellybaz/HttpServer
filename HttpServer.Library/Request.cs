@@ -64,9 +64,10 @@ namespace HttpServer.Library
         {
           _range = item.Split("=")[1];
         }
+        if(item.Contains("Cookie")){
+            
+        }
       }
-
-
     }
 
     internal void SetStaticPath(string value)

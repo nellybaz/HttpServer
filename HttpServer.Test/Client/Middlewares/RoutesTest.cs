@@ -78,5 +78,150 @@ namespace HttpServer.Test.Client.Middlewares
       //Then
       Assert.Contains(StatusCode._200, response.Headers);
     }
+
+    [Fact]
+    public void Post_To_CatForm_Url()
+    {
+      //Given
+      var httpServerCore = new HttpServerCore(_staticPath);
+      var response = new Response();
+      var request = new Request(RequestFixtures.Sample("POST", "/cat-form", "data=fatcat"));
+      request.App.StaticPath = _staticPath;
+
+      //When
+      httpServerCore.AddMiddleWare(new Routes());
+
+      httpServerCore.ProcessMiddleWares(request, response);
+
+      //Then
+      Assert.Contains(StatusCode._201, response.Headers);
+      Assert.Contains("Location:", response.Headers);
+      Assert.Contains("/cat-form/data", response.Headers);
+    }
+
+    [Fact]
+    public void Get_To_CatForm_Url()
+    {
+      //Given
+      var httpServerCore = new HttpServerCore(_staticPath);
+      var response = new Response();
+      var request = new Request(RequestFixtures.Sample("GET", "/cat-form/data"));
+      request.App.StaticPath = _staticPath;
+
+      //When
+      httpServerCore.AddMiddleWare(new Routes());
+
+      httpServerCore.ProcessMiddleWares(request, response);
+
+      //Then
+      Assert.Contains(StatusCode._404, response.Headers);
+    }
+
+    [Fact]
+    public void Get_To_CatForm_Url_After_Post()
+    {
+      //Given
+      var httpServerCore = new HttpServerCore(_staticPath);
+      var response = new Response();
+      var request = new Request(RequestFixtures.Sample("POST", "/cat-form", "data=fatcat"));
+      request.App.StaticPath = _staticPath;
+
+      //When
+      httpServerCore.AddMiddleWare(new Routes());
+
+      httpServerCore.ProcessMiddleWares(request, response);
+
+      var response2 = new Response();
+      var request2 = new Request(RequestFixtures.Sample("GET", "/cat-form/data"));
+      request2.App.StaticPath = _staticPath;
+
+      //When
+      // httpServerCore.AddMiddleWare(new Routes());
+
+      httpServerCore.ProcessMiddleWares(request2, response2);
+
+      //Then
+      Assert.Contains(StatusCode._200, response2.Headers);
+      Assert.Contains("data=fatcat", response2.Body);
+    }
+
+    [Fact]
+    public void Put_To_CatForm_Url()
+    {
+      //Given
+      string data = "data=newData";
+      var httpServerCore = new HttpServerCore(_staticPath);
+      var response = new Response();
+      var request = new Request(RequestFixtures.Sample("PUT", "/cat-form/data", data));
+      request.App.StaticPath = _staticPath;
+
+      //When
+      httpServerCore.AddMiddleWare(new Routes());
+
+      httpServerCore.ProcessMiddleWares(request, response);
+
+      //Then
+      Assert.Contains(StatusCode._200, response.Headers);
+
+
+      var response2 = new Response();
+      var request2 = new Request(RequestFixtures.Sample("GET", "/cat-form/data"));
+      request2.App.StaticPath = _staticPath;
+
+      httpServerCore.ProcessMiddleWares(request2, response2);
+
+      Assert.Contains(StatusCode._200, response2.Headers);
+      Assert.Contains(data, response2.Body);
+    }
+
+    [Fact]
+    public void Delete_To_CatForm_Url()
+    {
+      //Given
+      var httpServerCore = new HttpServerCore(_staticPath);
+      var response = new Response();
+      var request = new Request(RequestFixtures.Sample("POST", "/cat-form", "data=fatcat"));
+      request.App.StaticPath = _staticPath;
+
+      //When
+      httpServerCore.AddMiddleWare(new Routes());
+
+      httpServerCore.ProcessMiddleWares(request, response);
+
+      var response2 = new Response();
+      var request2 = new Request(RequestFixtures.Sample("GET", "/cat-form/data"));
+      request2.App.StaticPath = _staticPath;
+
+      //When
+
+      httpServerCore.ProcessMiddleWares(request2, response2);
+
+      //Then
+      Assert.Contains(StatusCode._200, response2.Headers);
+      Assert.Contains("data=fatcat", response2.Body);
+
+
+      var response3 = new Response();
+      var request3 = new Request(RequestFixtures.Sample("DELETE", "/cat-form/data"));
+      request3.App.StaticPath = _staticPath;
+
+      //When
+
+      httpServerCore.ProcessMiddleWares(request3, response3);
+
+      //Then
+      Assert.Contains(StatusCode._200, response3.Headers);
+
+
+
+      var response4 = new Response();
+      var request4 = new Request(RequestFixtures.Sample("GET", "/cat-form/data"));
+      request4.App.StaticPath = _staticPath;
+
+      httpServerCore.ProcessMiddleWares(request4, response4);
+
+      //Then
+      Assert.Contains(StatusCode._404, response4.Headers);
+    }
   }
 }

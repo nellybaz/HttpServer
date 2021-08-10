@@ -39,21 +39,28 @@ namespace HttpServer.Library.CoreMiddlewares
 
       if (request.Method == RequestMethod.PUT)
       {
-        using (FileStream fs = File.Create(path))
+        try
         {
-          byte[] info = new UTF8Encoding(true).GetBytes(request.Body);
-          fs.Write(info, 0, info.Length);
+          using (FileStream fs = File.Create(path))
+          {
+            byte[] info = new UTF8Encoding(true).GetBytes(request.Body);
+            fs.Write(info, 0, info.Length);
 
-          if (request.IsPath)
-          {
-            response.SetStatus(StatusCode._200);
-            response.SetBody("Updated");
+            if (request.IsPath)
+            {
+              response.SetStatus(StatusCode._200);
+              response.SetBody("Updated");
+            }
+            else
+            {
+              response.SetStatus(StatusCode._201);
+              response.SetBody("Created");
+            }
           }
-          else
-          {
-            response.SetStatus(StatusCode._201);
-            response.SetBody("Created");
-          }
+        }
+        catch (System.Exception)
+        {
+          // TODO
         }
       }
       if (request.Method == RequestMethod.DELETE && request.IsPath)
@@ -70,7 +77,6 @@ namespace HttpServer.Library.CoreMiddlewares
       {
         response.Methods = this.allowedMethods[request.Url];
         response.Status = StatusCode._200;
-        // response.Halt();
         return;
       }
     }

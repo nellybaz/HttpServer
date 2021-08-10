@@ -115,12 +115,12 @@ namespace HttpServer.Library
       {
         this._classMiddlewares.Add(this._basicAuth);
         this._classMiddlewares.Add(new PublicDirectory());
+        this._classMiddlewares.Add(new HttpMethods());
       }
 
 
       if (this._middlewares.ToArray().Length < 1)
       {
-        this._middlewares.Add(Middlewares.ProcessMethods);
         this._middlewares.Add(Middlewares.ProcessRoutes);
         // this._middlewares.Add(Middlewares.ProcessRanges);
       }

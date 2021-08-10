@@ -157,8 +157,10 @@ namespace HttpServer.Test
       string requestData = RequestFixtures.SampleOptions("/file1");
       var request = new Request(requestData);
       var response = new Response();
+
       //When
-      Middlewares.ProcessMethods(request, response);
+      new HttpMethods().Run(request, response);
+      
       //Then
       string expected = "Allow: GET, HEAD, OPTIONS, PUT, DELETE";
       Assert.Contains(expected, response.Headers);
@@ -224,7 +226,7 @@ namespace HttpServer.Test
       var request = new Request(RequestFixtures.Sample("BOGUS", "/file1"));
       //When
 
-      Middlewares.ProcessMethods(request, response);
+      new HttpMethods().Run(request, response);
 
       //Then
       Assert.Contains(StatusCode._501, response.Headers);

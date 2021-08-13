@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Security.Cryptography;
 using System.Text;
 
 namespace HttpServer.Library.CoreMiddlewares
@@ -8,6 +9,8 @@ namespace HttpServer.Library.CoreMiddlewares
   public class HttpMethods : IMiddleware
   {
     private Dictionary<String, String> allowedMethods = new Dictionary<String, String>();
+    private byte[] _currentFileContent = new Byte[600];
+
     public HttpMethods() { }
     public HttpMethods(Dictionary<String, String> allowedMethods)
     {
@@ -37,18 +40,24 @@ namespace HttpServer.Library.CoreMiddlewares
 
       string path = request.App.StaticPath + request.Url;
 
-      if (request.Method == RequestMethod.PUT)
+      if (MethodAllowsUpdate(request))
       {
         try
         {
-          using (FileStream fs = File.Create(path))
+          this._currentFileContent = File.ReadAllBytes(path);
+        }
+        catch (System.Exception){}
+
+        try
+        {
+          using (FileStream fs = File.OpenWrite(path))
           {
             byte[] info = new UTF8Encoding(true).GetBytes(request.Body);
-            fs.Write(info, 0, info.Length);
+            WriteToFile(request, response, fs, info);
 
             if (request.IsPath)
             {
-              response.SetStatus(StatusCode._200);
+              SetStatusCode(request, response);
               response.SetBody("Updated");
             }
             else
@@ -61,6 +70,7 @@ namespace HttpServer.Library.CoreMiddlewares
         catch (System.Exception)
         {
           // TODO
+          response.SetStatus(StatusCode._501);
         }
       }
       if (request.Method == RequestMethod.DELETE && request.IsPath)
@@ -71,6 +81,56 @@ namespace HttpServer.Library.CoreMiddlewares
       }
     }
 
+    private void WriteToFile(Request request, Response response, FileStream fs, byte[] info)
+    {
+      if (request.Method == RequestMethod.PATCH)
+      {
+        if (ValidEtag(request))
+        {
+          fs.Write(info, 0, info.Length);
+          response.SetStatus(StatusCode._204);
+        }
+        else
+        {
+          response.SetStatus(StatusCode._412);
+        }
+      }
+      else
+      {
+        fs.Write(info, 0, info.Length);
+      }
+
+    }
+
+    private bool ValidEtag(Request request)
+    {
+      string etag = request.Etag;
+      string currentFileContent = SHA1HashedContent(this._currentFileContent);
+      return etag.ToLower() == currentFileContent.ToLower();
+    }
+
+    private string SHA1HashedContent(byte[] byteData)
+    {
+      try
+      {
+        var hashedByte = SHA1.HashData(byteData);
+        return BitConverter.ToString(hashedByte).Replace("-", String.Empty);
+      }
+      catch (System.Exception)
+      {
+        return "";
+      }
+    }
+
+    private void SetStatusCode(Request request, Response response)
+    {
+      if (request.Method != RequestMethod.PATCH)
+      {
+        response.SetStatus(StatusCode._200);
+      }
+
+    }
+
     private void SetAllowedMethods(Request request, Response response)
     {
       if (request.Method == RequestMethod.OPTIONS && this.allowedMethods.ContainsKey(request.Url))
@@ -79,6 +139,11 @@ namespace HttpServer.Library.CoreMiddlewares
         response.Status = StatusCode._200;
         return;
       }
+    }
+
+    private bool MethodAllowsUpdate(Request request)
+    {
+      return request.Method == RequestMethod.PUT || request.Method == RequestMethod.PATCH;
     }
   }
 }

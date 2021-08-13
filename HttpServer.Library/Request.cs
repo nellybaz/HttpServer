@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Web;
 
@@ -35,6 +36,9 @@ namespace HttpServer.Library
     {
       get => DecodeQuery();
     }
+    private string _etag;
+    public string Etag { get => _etag; }
+
     public App App = new App();
     public string Authorization;
 
@@ -68,6 +72,10 @@ namespace HttpServer.Library
         if (item.Contains("Range"))
         {
           _range = item.Split("=")[1];
+        }
+        if (item.Contains("If-Match"))
+        {
+          _etag = item.Split(":")[1].TrimStart().Split("\r")[0];
         }
       }
     }

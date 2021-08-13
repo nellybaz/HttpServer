@@ -10,6 +10,7 @@ namespace HttpServer.Library
     public static readonly string POST = "POST";
 
     public static readonly string PUT = "PUT";
+    public static readonly string PATCH = "PATCH";
     public static readonly string HEAD = "HEAD";
     public static readonly string OPTIONS = "OPTIONS";
     public static readonly string DELETE = "DELETE";
@@ -23,6 +24,7 @@ namespace HttpServer.Library
                  {"PUT", true},
                  {"HEAD", true},
                  {"DELETE", true},
+                 {"PATCH", true},
              };
 
       return validMethods.ContainsKey(method);

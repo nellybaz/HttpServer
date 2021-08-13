@@ -70,5 +70,18 @@ namespace HttpServer.Test
       //Then
       Assert.Equal("0-4", request.Range);
     }
+
+    [Fact]
+    public void Etag_Retrieved_From_Request()
+    {
+    //Given
+    string hash = "dc50a0d27dda2eee9f65644cd7e4c9cf11de8bec";
+    
+    //When
+    Request request = new Request(RequestFixtures.SamplePatchRequest(hash));
+    
+    //Then
+    Assert.Equal(hash, request.Etag);
+    }
   }
 }

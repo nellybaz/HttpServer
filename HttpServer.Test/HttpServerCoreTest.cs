@@ -346,7 +346,7 @@ namespace HttpServer.Test
       Assert.Contains(StatusCode._404, response.Headers);
     }
 
-     [Fact]
+    [Fact]
     public void Partial_Content_Returns_For_Valid_Start_And_End_Ranges()
     {
       //Given
@@ -364,7 +364,7 @@ namespace HttpServer.Test
       Assert.Equal(5, response.ContentLength);
     }
 
-     [Fact]
+    [Fact]
     public void Range_Request_Without_Start_Index()
     {
       //Given
@@ -376,17 +376,62 @@ namespace HttpServer.Test
       request.App.StaticPath = _staticPath;
 
       string fileContents = "This is a file that contains text to read part of in order to fulfill a 206.";
-      Byte[] contentBytes  = System.Text.Encoding.ASCII.GetBytes(fileContents);
+      Byte[] contentBytes = System.Text.Encoding.ASCII.GetBytes(fileContents);
       Index start = ^6;
       Index end = ^0;
       var expected = contentBytes[start..end];
-      
+
       //When
       Helper.processMiddleWares(httpServerCore, request, response);
 
       //Then
       Assert.Contains(StatusCode._206, response.Headers);
       Assert.Equal(expected, response.BodyBytes);
+    }
+
+    [Fact]
+    public void PATCH_Returns_204_For_Valid_Etag()
+    {
+
+      //Given
+      var httpServerCore = new HttpServerCore(_staticPath);
+      var response = new Response();
+      string etag = "dc50a0d27dda2eee9f65644cd7e4c9cf11de8bec";
+      string data = "patched content";
+      string path = "/patch-content.txt";
+      var request = new Request(RequestFixtures.SamplePatchRequest(path, data, etag));
+      request.App.StaticPath = _staticPath;
+
+      var response2 = new Response();
+      var request2 = new Request(RequestFixtures.Sample("GET", path));
+      request2.App.StaticPath = _staticPath;
+
+
+      Helper.processMiddleWares(httpServerCore, request, response);
+
+      Assert.Contains(StatusCode._204, response.Status);
+
+      Helper.processMiddleWares(httpServerCore, request2, response2);
+
+      Assert.Contains(data, response2.Body);
+      Assert.Contains(StatusCode._200, response2.Status);
+    }
+
+    [Fact]
+    public void PATCH_Returns_Fails_For_Invalid_Etag()
+    {
+      //Given
+      var httpServerCore = new HttpServerCore(_staticPath);
+      var response = new Response();
+      string etag = "etag";
+      string data = "patched content";
+      string path = "/patch-content.txt";
+      var request = new Request(RequestFixtures.SamplePatchRequest(path, data, etag));
+      request.App.StaticPath = _staticPath;
+
+      Helper.processMiddleWares(httpServerCore, request, response);
+
+      Assert.Equal(StatusCode._412, response.Status);
     }
   }
 

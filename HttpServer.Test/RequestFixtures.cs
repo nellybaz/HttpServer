@@ -29,6 +29,16 @@ namespace HttpServer.Test
       return sampleGetRequest;
     }
 
+    internal static string SamplePatchRequest(string hash)
+    {
+      return $"PATCH / HTTP/1.1\r\nHost: localhost:5050\r\nUser-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:89.0) Gecko/20100101 Firefox/89.0\r\nAccept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8\r\nAccept-Language: en-US,en;q=0.5\r\nAccept-Encoding: gzip, deflate\r\nConnection: keep-alive\r\nIf-Match: {hash}\r\nCookie: textwrapon=false; textautoformat=false; wysiwyg=textarea\r\nUpgrade-Insecure-Requests: 1\r\n";
+    }
+
+       internal static string SamplePatchRequest(string path, string data, string hash)
+    {
+      return $"PATCH {path} HTTP/1.1\r\nHost: localhost:5050\r\nUser-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:89.0) Gecko/20100101 Firefox/89.0\r\nAccept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8\r\nAccept-Language: en-US,en;q=0.5\r\nAccept-Encoding: gzip, deflate\r\nConnection: keep-alive\r\nIf-Match: {hash}\r\nCookie: textwrapon=false; textautoformat=false; wysiwyg=textarea\r\nUpgrade-Insecure-Requests: 1\r\n\r\n" + data;
+    }
+
     public static string SampleHead(string route)
     {
       string sampleGetRequest = "HEAD " + route + " HTTP/1.1\r\nHost: localhost:5050\r\nUser-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10.15; rv:89.0) Gecko/20100101 Firefox/89.0\r\nAccept: text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8\r\nAccept-Language: en-US,en;q=0.5\r\nAccept-Encoding: gzip, deflate\r\nConnection: keep-alive\r\nCookie: textwrapon=false; textautoformat=false; wysiwyg=textarea\r\nUpgrade-Insecure-Requests: 1\r\n";

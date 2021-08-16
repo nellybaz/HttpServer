@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using HttpClient.Middlewares;
 using HttpServer.Library;
 namespace HttpClient
@@ -22,7 +23,17 @@ namespace HttpClient
       var allowedMethods = new Dictionary<String, String>();
       allowedMethods.Add("/logs", "GET, HEAD, OPTIONS");
       httpServer.SetAllowedMethods(allowedMethods);
-      
+
+      httpServer.Route("GET", "/", new HomeController().Run);
+      httpServer.Route("*", "/logs", new LogsController().Run);
+      httpServer.Route("*", "/cat-form", new CatFormController().Run);
+      httpServer.Route("GET", "/eat_cookie", new CookieController().Run);
+      httpServer.Route("GET", "/cookie", new CookieController().Run2);
+      httpServer.Route("GET", "/parameter", new ParameterController().Run);
+      httpServer.Route("GET", "/redirect", new RedirectController().Run);
+      httpServer.Route("GET", "/tea", new CoffeeTeaController().Tea);
+      httpServer.Route("GET", "/coffee", new CoffeeTeaController().Run);
+
       httpServer.Run(port);
     }
   }

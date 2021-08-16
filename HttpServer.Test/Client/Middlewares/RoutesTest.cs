@@ -19,7 +19,8 @@ namespace HttpServer.Test.Client.Middlewares
       request.App.StaticPath = _staticPath;
 
       //When
-      new Routes().Run(request, response);
+      httpServerCore.Route("GET", "/", new HomeController().Run);
+      httpServerCore.ProcessRoutes(request, response);
 
       //Then
       Assert.Contains(StatusCode._200, response.Headers);
@@ -46,7 +47,7 @@ namespace HttpServer.Test.Client.Middlewares
       var request = new Request(RequestFixtures.SampleAuthorized("GET", "/logs", "Basic " + base64));
 
       //When
-      httpServerCore.AddMiddleWare(new Routes());
+      httpServerCore.Route("*", "/logs", new LogsController().Run);
 
 
       string[] urls = { "/logs" };
@@ -54,6 +55,7 @@ namespace HttpServer.Test.Client.Middlewares
 
 
       httpServerCore.ProcessMiddleWares(request, response);
+      httpServerCore.ProcessRoutes(request, response);
 
       //Then
       Assert.Contains(StatusCode._200, response.Headers);
@@ -89,9 +91,10 @@ namespace HttpServer.Test.Client.Middlewares
       request.App.StaticPath = _staticPath;
 
       //When
-      httpServerCore.AddMiddleWare(new Routes());
+      httpServerCore.Route("*", "/cat-form", new CatFormController().Run);
 
       httpServerCore.ProcessMiddleWares(request, response);
+      httpServerCore.ProcessRoutes(request, response);
 
       //Then
       Assert.Contains(StatusCode._201, response.Headers);
@@ -109,7 +112,7 @@ namespace HttpServer.Test.Client.Middlewares
       request.App.StaticPath = _staticPath;
 
       //When
-      httpServerCore.AddMiddleWare(new Routes());
+      // httpServerCore.AddMiddleWare(new Routes());
 
       httpServerCore.ProcessMiddleWares(request, response);
 
@@ -127,18 +130,19 @@ namespace HttpServer.Test.Client.Middlewares
       request.App.StaticPath = _staticPath;
 
       //When
-      httpServerCore.AddMiddleWare(new Routes());
+      httpServerCore.Route("*", "/cat-form", new CatFormController().Run);
 
       httpServerCore.ProcessMiddleWares(request, response);
+      httpServerCore.ProcessRoutes(request, response);
 
       var response2 = new Response();
       var request2 = new Request(RequestFixtures.Sample("GET", "/cat-form/data"));
       request2.App.StaticPath = _staticPath;
 
       //When
-      // httpServerCore.AddMiddleWare(new Routes());
 
       httpServerCore.ProcessMiddleWares(request2, response2);
+      httpServerCore.ProcessRoutes(request2, response2);
 
       //Then
       Assert.Contains(StatusCode._200, response2.Headers);
@@ -156,9 +160,11 @@ namespace HttpServer.Test.Client.Middlewares
       request.App.StaticPath = _staticPath;
 
       //When
-      httpServerCore.AddMiddleWare(new Routes());
+      httpServerCore.Route("*", "/cat-form", new CatFormController().Run);
+
 
       httpServerCore.ProcessMiddleWares(request, response);
+      httpServerCore.ProcessRoutes(request, response);
 
       //Then
       Assert.Contains(StatusCode._200, response.Headers);
@@ -169,6 +175,8 @@ namespace HttpServer.Test.Client.Middlewares
       request2.App.StaticPath = _staticPath;
 
       httpServerCore.ProcessMiddleWares(request2, response2);
+      httpServerCore.ProcessRoutes(request2, response2);
+
 
       Assert.Contains(StatusCode._200, response2.Headers);
       Assert.Contains(data, response2.Body);
@@ -184,9 +192,10 @@ namespace HttpServer.Test.Client.Middlewares
       request.App.StaticPath = _staticPath;
 
       //When
-      httpServerCore.AddMiddleWare(new Routes());
+      httpServerCore.Route("*", "/cat-form", new CatFormController().Run);
 
       httpServerCore.ProcessMiddleWares(request, response);
+      httpServerCore.ProcessRoutes(request, response);
 
       var response2 = new Response();
       var request2 = new Request(RequestFixtures.Sample("GET", "/cat-form/data"));
@@ -194,7 +203,9 @@ namespace HttpServer.Test.Client.Middlewares
 
       //When
 
+
       httpServerCore.ProcessMiddleWares(request2, response2);
+      httpServerCore.ProcessRoutes(request2, response2);
 
       //Then
       Assert.Contains(StatusCode._200, response2.Headers);
@@ -208,6 +219,7 @@ namespace HttpServer.Test.Client.Middlewares
       //When
 
       httpServerCore.ProcessMiddleWares(request3, response3);
+      httpServerCore.ProcessRoutes(request3, response3);
 
       //Then
       Assert.Contains(StatusCode._200, response3.Headers);
@@ -234,8 +246,10 @@ namespace HttpServer.Test.Client.Middlewares
       request.App.StaticPath = _staticPath;
 
       //When
-      httpServerCore.AddMiddleWare(new Routes());
+
+      httpServerCore.Route("GET", "/cookie", new CookieController().Run2);
       httpServerCore.ProcessMiddleWares(request, response);
+      httpServerCore.ProcessRoutes(request, response);
 
       //Then
       Assert.Contains(StatusCode._200, response.Headers);
@@ -253,13 +267,14 @@ namespace HttpServer.Test.Client.Middlewares
       request.App.StaticPath = _staticPath;
 
       //When
-      httpServerCore.AddMiddleWare(new Routes());
+      httpServerCore.Route("GET", "/eat_cookie", new CookieController().Run);
       httpServerCore.ProcessMiddleWares(request, response);
+      httpServerCore.ProcessRoutes(request, response);
 
       //Then
       Assert.Contains(StatusCode._200, response.Headers);
       Assert.Contains("mmmm chocolate", response.Body);
-      Assert.Contains("Set-Cookie:", response.Headers);
+      Assert.Contains("Set-Cookie: type=chocolate", response.Headers);
     }
 
     [Fact]
@@ -272,8 +287,9 @@ namespace HttpServer.Test.Client.Middlewares
       request.App.StaticPath = _staticPath;
 
       //When
-      httpServerCore.AddMiddleWare(new Routes());
+      httpServerCore.Route("GET", "/coffee", new CoffeeTeaController().Run);
       httpServerCore.ProcessMiddleWares(request, response);
+      httpServerCore.ProcessRoutes(request, response);
 
       //Then
       Assert.Contains(StatusCode._418, response.Headers);
@@ -290,8 +306,9 @@ namespace HttpServer.Test.Client.Middlewares
       request.App.StaticPath = _staticPath;
 
       //When
-      httpServerCore.AddMiddleWare(new Routes());
+      httpServerCore.Route("GET", "/tea", new CoffeeTeaController().Tea);
       httpServerCore.ProcessMiddleWares(request, response);
+      httpServerCore.ProcessRoutes(request, response);
 
       //Then
       Assert.Contains(StatusCode._200, response.Headers);
@@ -304,14 +321,14 @@ namespace HttpServer.Test.Client.Middlewares
       var httpServerCore = new HttpServerCore(_staticPath);
       var response = new Response();
       string url =
-      // "/parameters?variable_1=Operators%20%3C%2C%20%3E%2C%20%3D%2C%20!%3D%3B%20%2B%2C%20-%2C%20*%2C%20%26%2C%20%40%2C%20%23%2C%20%24%2C%20%5B%2C%20%5D%3A%20%22is%20that%20all%22%3F&variable_2=stuff";
       "/parameters?variable_1=a%20query%20string%20parameter";
       var request = new Request(RequestFixtures.Sample("GET", url));
       request.App.StaticPath = _staticPath;
 
       //When
-      httpServerCore.AddMiddleWare(new Routes());
+      httpServerCore.Route("GET", "/parameter", new ParameterController().Run);
       httpServerCore.ProcessMiddleWares(request, response);
+      httpServerCore.ProcessRoutes(request, response);
 
       //Then
       string expected = "variable_1 = a query string parameter";
@@ -330,8 +347,9 @@ namespace HttpServer.Test.Client.Middlewares
       request.App.StaticPath = _staticPath;
 
       //When
-      httpServerCore.AddMiddleWare(new Routes());
+      httpServerCore.Route("GET", "/redirect", new RedirectController().Run);
       httpServerCore.ProcessMiddleWares(request, response);
+      httpServerCore.ProcessRoutes(request, response);
 
       //Then
       Assert.Contains(StatusCode._302, response.Headers);

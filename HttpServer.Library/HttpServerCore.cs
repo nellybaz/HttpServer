@@ -22,6 +22,8 @@ namespace HttpServer.Library
     private IMiddleware _basicAuthMiddleware = new BasicAuthentication();
     private IMiddleware _httpMethodsMiddleware = new HttpMethods();
 
+    private Dictionary<string, Dictionary<string, dynamic>> routes = new Dictionary<string, Dictionary<string, dynamic>>();
+
     public HttpServerCore(string staticPath)
     {
       this._staticPath = staticPath;
@@ -91,10 +93,42 @@ namespace HttpServer.Library
       Response response = new Response();
 
       ProcessMiddleWares(request, response);
+      ProcessRoutes(request, response);
 
       HttpServerWorker httpServerWorker = new HttpServerWorker(stream, request, response);
       httpServerWorker.Write();
     }
+
+    public void ProcessRoutes(Request request, Response response)
+    {
+      string route = "";
+
+      try
+      {
+        if (request.Url == "/") { route = request.Url; }
+        else
+        {
+          foreach (string key in this.routes.Keys)
+          {
+            if(key == "/") continue;
+            if (request.Url.Contains(key))
+            {
+              route = key;
+              break;
+            }
+          }
+        }
+
+        Dictionary<string, dynamic> routeDetails = this.routes[route];
+        string routeMethod = routeDetails["method"];
+        if (routeMethod == "*" || request.Method == routeMethod)
+        {
+          routeDetails["callback"](request, response);
+        }
+      }
+      catch (System.Exception e) { Console.WriteLine(e); }
+    }
+
     public void ProcessMiddleWares(Request request, Response response)
     {
       RegisterMiddleWares();
@@ -127,6 +161,14 @@ namespace HttpServer.Library
     public void AddMiddleWare(IMiddleware middleware)
     {
       _middlewares.Add(middleware);
+    }
+
+    public void Route(string method, string route, Action<Request, Response> callback)
+    {
+      Dictionary<string, dynamic> routeParams = new Dictionary<string, dynamic>();
+      routeParams.Add("method", method);
+      routeParams.Add("callback", callback);
+      this.routes.Add(route, routeParams);
     }
   }
 }

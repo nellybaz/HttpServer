@@ -5,7 +5,7 @@ public class CookieController : Controller
   {
     response.SetStatus(StatusCode._200);
     response.SetBody("mmmm chocolate");
-    response.SetCookie("type=chocolate");
+    response.SetHeader(Response.Header.Set_Cookie, "type=chocolate");
 
   }
 

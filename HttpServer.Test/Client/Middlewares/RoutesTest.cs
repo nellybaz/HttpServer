@@ -337,6 +337,29 @@ namespace HttpServer.Test.Client.Middlewares
     }
 
 
+
+    [Fact(Skip="true")]
+    public void Decode_Request_With_Parameter_2()
+    {
+      // Given
+      var httpServerCore = new HttpServerCore(_staticPath);
+      var response = new Response();
+      string url =
+      "/parameters?variable_1=Operators%20%3C%2C%20%3E%2C%20%3D%2C%20!%3D%3B%20%2B%2C%20-%2C%20*%2C%20%26%2C%20%40%2C%20%23%2C%20%24%2C%20%5B%2C%20%5D%3A%20%22is%20that%20all%22%3F&variable_2=stuff";
+      var request = new Request(RequestFixtures.Sample("GET", url));
+      request.App.StaticPath = _staticPath;
+
+      //When
+      httpServerCore.Route("GET", "/parameter", new ParameterController().Run);
+      httpServerCore.ProcessMiddleWares(request, response);
+      httpServerCore.ProcessRoutes(request, response);
+
+      //Then
+      string expected = "variable_1 = Operators <, >, =, !=; +, -, *, &, @, #, $, [, ]: \"is that all\"?";
+      Assert.Contains(StatusCode._200, response.Headers);
+      Assert.Equal(expected, response.Body);
+    }
+
     [Fact]
     public void Redirect_Request_Returns_302()
     {

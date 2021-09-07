@@ -89,12 +89,15 @@ namespace HttpServer.Library
     {
       string queryString = this.Url.Split("?")[1];
       string decodedQuery = HttpUtility.UrlDecode(queryString);
+      var res = HttpUtility.ParseQueryString(queryString); // {key:value}
       string output = "";
+      bool firstSign = false;
       foreach (var character in decodedQuery)
       {
-        if (character == '=')
+        if (character == '=' && !firstSign)
         {
           output += " " + character + " ";
+          firstSign = true;
         }
         else { output += character; }
       }

@@ -26,7 +26,7 @@ namespace HttpServer.Library.CoreMiddlewares
 
       if (request.Method == RequestMethod.OPTIONS)
       {
-        response.Methods = "GET, HEAD, OPTIONS, PUT, DELETE";
+        response.SetHeader(Response.Header.Allowed_Method, "GET, HEAD, OPTIONS, PUT, DELETE");
         response.Status = StatusCode._200;
       }
 
@@ -46,7 +46,7 @@ namespace HttpServer.Library.CoreMiddlewares
         {
           this._currentFileContent = File.ReadAllBytes(path);
         }
-        catch (System.Exception){}
+        catch (System.Exception) { }
 
         try
         {
@@ -135,7 +135,7 @@ namespace HttpServer.Library.CoreMiddlewares
     {
       if (request.Method == RequestMethod.OPTIONS && this.allowedMethods.ContainsKey(request.Url))
       {
-        response.Methods = this.allowedMethods[request.Url];
+        response.SetHeader(Response.Header.Allowed_Method, this.allowedMethods[request.Url]);
         response.Status = StatusCode._200;
         return;
       }

@@ -10,9 +10,8 @@ namespace HttpClient
     static void Main(string[] args)
     {
       var staticPath = "/Users/nbassey/Development/owc/http-server/public";
-      int port = 5000;
       HttpServerCore httpServer = new HttpServerCore(staticPath);
-      httpServer.AddMiddleWare(new Routes());
+      httpServer.AddMiddleWare(new Routes()); // clean this up
 
       string userName = "admin";
       string password = "hunter2";
@@ -22,7 +21,7 @@ namespace HttpClient
 
       var allowedMethods = new Dictionary<String, String>();
       allowedMethods.Add("/logs", "GET, HEAD, OPTIONS");
-      httpServer.SetAllowedMethods(allowedMethods);
+      httpServer.SetAllowedMethods(allowedMethods); // are read only files/paths, maybe giving a list of paths
 
       httpServer.Route("GET", "/", new HomeController().Run);
       httpServer.Route("*", "/logs", new LogsController().Run);
@@ -34,7 +33,11 @@ namespace HttpClient
       httpServer.Route("GET", "/tea", new CoffeeTeaController().Tea);
       httpServer.Route("GET", "/coffee", new CoffeeTeaController().Run);
 
+      int port = 5000;
       httpServer.Run(port);
+
+      // reflection: dynamically call methods on routes
+      // dependency inversion 
     }
   }
 }

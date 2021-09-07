@@ -1,37 +1,30 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace HttpServer.Library
 {
   public class Response
   {
+
+    public enum Header
+    {
+      Set_Cookie,
+      Content_Range,
+      Location,
+      Authenticate,
+      Allowed_Method,
+      Content_Type,
+      Content_Length
+    }
+
+    private Dictionary<String, String> _headers = new Dictionary<String, string>();
     private string newLine = Environment.NewLine;
     private string _status;
     public string Status
     {
       get => _status;
       set => _status = value;
-    }
-
-    private string _location;
-    public string Location
-    {
-      get => _location;
-    }
-
-
-    private string _mime;
-    public string Mime
-    {
-      get => _mime;
-      set => _mime = value;
-    }
-
-    private string _methods;
-    public string Methods
-    {
-      get => _methods;
-      set => _methods = value;
     }
 
     private string _body;
@@ -51,18 +44,9 @@ namespace HttpServer.Library
       get => _bodyByte;
     }
 
-    private bool _authenticate;
-    public bool Authenticate
-    {
-      get => _authenticate;
-      set => _authenticate = value;
-    }
-
-    private int _contentLength;
     public int ContentLength
     {
-      get => _contentLength;
-      set => _contentLength = value;
+      get => int.Parse(_headers[HeaderToString(Header.Content_Length)]);
     }
 
     public string Headers
@@ -83,30 +67,51 @@ namespace HttpServer.Library
 
 
     private string _version;
-    private string _encoding;
-    private string _server;
-    private string _cookie;
 
     public Response()
     {
-      // _status = StatusCode._200;
-      _mime = "text/html;";
+      string mime = "";
+      string server = "XHTTPServer";
       _version = "HTTP/1.1";
-      _encoding = "charset=utf-8";
-      _contentLength = 0;
-      _server = "XHTTPServer";
+      SetHeader(HeaderToString(Header.Content_Length), "0");
+      SetHeader("Server", server);
+      SetHeader(HeaderToString(Header.Content_Type), mime);
+      SetHeader("Accept-Ranges", "bytes");
+    }
+
+    private string HeaderToString(Header header)
+    {
+      switch (header)
+      {
+        case Header.Set_Cookie:
+          return "Set-Cookie";
+        case Header.Content_Range:
+          return "Content-Range";
+        case Header.Location:
+          return "Location";
+        case Header.Authenticate:
+          return "WWW-Authenticate";
+        case Header.Allowed_Method:
+          return "Allow";
+        case Header.Content_Type:
+          return "Content-Type";
+        case Header.Content_Length:
+          return "Content-Length";
+        default:
+          return "";
+      }
+    }
+
+    public void Authenticate(bool value)
+    {
+      if (value) SetHeader(HeaderToString(Header.Authenticate), "Basic realm='Access to resource', charset='UTF-8'");
     }
 
     public void SetBody(string message)
     {
       _body = message;
       _bodyByte = System.Text.Encoding.ASCII.GetBytes(_body);
-      _contentLength = BodyBytes.Length;
-    }
-
-    public void SetLocation(string value)
-    {
-      this._location = value;
+      SetHeader(HeaderToString(Header.Content_Length), BodyBytes.Length.ToString());
     }
 
     public void SetStatus(string status)
@@ -117,34 +122,39 @@ namespace HttpServer.Library
     {
       _bodyByte = messageByte;
       _body = System.Text.Encoding.ASCII.GetString(messageByte);
-      _contentLength = messageByte.Length;
+      SetHeader(HeaderToString(Header.Content_Length), messageByte.Length.ToString());
     }
 
     public void Halt()
     {
       _halted = true;
     }
-    private string FormatHeaders()
+    public void SetHeader(Header header, String value)
     {
-      string method = "";
-      if (_methods != null) method = $"Allow: {_methods}{newLine}";
-
-      string authenticate = "";
-      if (_authenticate) authenticate = $"WWW-Authenticate: Basic realm='Access to resource', charset='UTF-8'{newLine}";
-
-      string location = "";
-      if (_location != null) location = $"Location: {_location}{newLine}";
-
-      string cookie = "";
-      if (_cookie != null) cookie = $"Set-Cookie: {_cookie}{newLine}";
-
-      string headers = $"{_version} {_status}{newLine}{method}Server: {_server}{newLine}Content-Type: {_mime} {_encoding}{newLine}{authenticate}{location}{cookie}Accept-Ranges: bytes{newLine}Content-Length: {_contentLength}{newLine}{newLine}";
-      return headers;
+      SetHeader(HeaderToString(header), value);
     }
 
-    public void SetCookie(string value)
+    public void SetHeader(String header, string value)
     {
-      this._cookie = value;
+      if (_headers.ContainsKey(header))
+      {
+        _headers[header] = value;
+      }
+      else
+      {
+        _headers.Add(header, value);
+      }
+    }
+    private string FormatHeaders()
+    {
+
+      string headers = $"{_version} {_status}{newLine}";
+
+      foreach (var item in _headers)
+      {
+        headers += $"{item.Key}: {item.Value}{newLine}";
+      }
+      return headers + newLine;
     }
   }
 }

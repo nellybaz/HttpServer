@@ -6,6 +6,7 @@ namespace HttpServer.Library.CoreMiddlewares
   {
     public void Run(Request request, Response response)
     {
+      bool notSatifiable = false;
       if (request.Range != null)
       {
         try
@@ -18,37 +19,69 @@ namespace HttpServer.Library.CoreMiddlewares
           Index endRange = 0;
           Byte[] currentByteData = response.BodyBytes;
 
-          if (start == "")
+          if (IsEmpty(start))
           {
-            startRange = ^Int32.Parse(end);
-            endRange = ^0;
+            if (int.Parse(end) > currentByteData.Length)
+            {
+              startRange = 0;
+            }
+            else
+            {
+              startRange = currentByteData.Length - int.Parse(end);
+            }
+            endRange = currentByteData.Length - 1;
+
+          }
+          else if (IsEmpty(end))
+          {
+            endRange = currentByteData.Length - 1;
+            startRange = Int32.Parse(start);
+            response.SetHeader(Response.Header.Content_Range, $"bytes {start}-{end}/{currentByteData.Length}");
           }
           else
           {
-            startRange = Int32.Parse(start);
-            endRange = Int32.Parse(end) + 1;
+            if (int.Parse(start) > int.Parse(end))
+            {
+              startRange = 0;
+              endRange = currentByteData.Length - 1;
+              notSatifiable = true;
+            }
+            else
+            {
+              startRange = Int32.Parse(start);
+              endRange = Int32.Parse(end);
+            }
+            response.SetHeader(Response.Header.Content_Range, $"bytes {start}-{end}/{currentByteData.Length}");
           }
 
-          Byte[] newByteData = currentByteData[startRange..endRange];
+          if (endRange.Value > currentByteData.Length)
+          {
 
-          //   newByteData = ;
+            endRange = currentByteData.Length - 1;
+          }
 
-          //   int newByteIndex = 0;
-          //   for (int i = startRange; i <= endRange; i++)
-          //   {
-          //     newByteData[newByteIndex] = currentByteData[i];
-          //     newByteIndex++;
-          //   }
+          Byte[] newByteData = currentByteData[startRange..(endRange.Value + 1)];
 
           response.SetBody(newByteData);
-          response.SetStatus(StatusCode._206);
+          if (notSatifiable)
+          {
+            response.SetStatus(StatusCode._416);
+          }
+          else
+          {
+            response.SetStatus(StatusCode._206);
+          }
         }
         catch (System.Exception e)
         {
-          // TODO
           Console.WriteLine(e);
         }
       }
+    }
+
+    private bool IsEmpty(string value)
+    {
+      return value == "";
     }
   }
 }

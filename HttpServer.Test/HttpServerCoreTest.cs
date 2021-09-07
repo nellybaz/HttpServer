@@ -137,16 +137,12 @@ namespace HttpServer.Test
       Stream clientStream = new MemoryStream(256);
       Byte[] byteMessage = System.Text.Encoding.ASCII.GetBytes(RequestFixtures.SampleOptions("/file1"));
 
-      clientStream.Write(byteMessage, 0, byteMessage.Length);
-      clientStream.Seek(0, SeekOrigin.Begin);
-      var httpServerCore = new HttpServerCore(_staticPath);
-      string actual0 = HttpServerCore.GetStreamData(clientStream);
-      Assert.Contains("OPTIONS", actual0);
-      clientStream.Seek(0, SeekOrigin.Begin);
-      httpServerCore.HandleRequest(clientStream);
+      Request request = new Request(RequestFixtures.SampleOptions("/file1"));
+      Response response = new Response();
 
-      clientStream.Seek(0, SeekOrigin.Begin);
-      string actual = HttpServerCore.GetStreamData(clientStream);
+      HttpServerCore httpServerCore = new HttpServerCore(_staticPath);
+      httpServerCore.ProcessMiddleWares(request, response);
+      string actual = response.Headers;
       string status = "Allow: GET, HEAD, OPTIONS, PUT, DELETE";
       Assert.Contains(status, actual);
     }
@@ -375,7 +371,7 @@ namespace HttpServer.Test
       var request = new Request(RequestFixtures.SampleRange("GET", path, range));
       request.App.StaticPath = _staticPath;
 
-      string fileContents = "This is a file that contains text to read part of in order to fulfill a 206.";
+      string fileContents = "This is a file that contains text to read part of in order to fulfill a 206.\n";
       Byte[] contentBytes = System.Text.Encoding.ASCII.GetBytes(fileContents);
       Index start = ^6;
       Index end = ^0;
@@ -386,6 +382,134 @@ namespace HttpServer.Test
 
       //Then
       Assert.Contains(StatusCode._206, response.Headers);
+      Assert.Equal(expected, response.BodyBytes);
+    }
+
+
+    [Fact]
+    public void Range_Request_Without_End_Index()
+    {
+      //Given
+      var httpServerCore = new HttpServerCore(_staticPath);
+      var response = new Response();
+      string range = "bytes=4-";
+      string path = "/partial_content.txt";
+      var request = new Request(RequestFixtures.SampleRange("GET", path, range));
+      request.App.StaticPath = _staticPath;
+
+      string fileContents = "This is a file that contains text to read part of in order to fulfill a 206.\n";
+      Byte[] contentBytes = System.Text.Encoding.ASCII.GetBytes(fileContents);
+      Index start = 4;
+      Index end = 77;
+      var expected = contentBytes[start..end];
+
+      //When
+      Helper.processMiddleWares(httpServerCore, request, response);
+
+      //Then
+      Assert.Contains(StatusCode._206, response.Headers);
+      Assert.Equal(expected, response.BodyBytes);
+    }
+
+        [Fact]
+    public void Range_Start_To_End_Greater_Than_Content()
+    {
+      //Given
+      var httpServerCore = new HttpServerCore(_staticPath);
+      var response = new Response();
+      string range = "bytes=75-80";
+      string path = "/partial_content.txt";
+      var request = new Request(RequestFixtures.SampleRange("GET", path, range));
+      request.App.StaticPath = _staticPath;
+
+      string fileContents = "This is a file that contains text to read part of in order to fulfill a 206.\n";
+      Byte[] contentBytes = System.Text.Encoding.ASCII.GetBytes(fileContents);
+      Index start = 75;
+      Index end = 77;
+      var expected = contentBytes[start..end];
+
+      //When
+      Helper.processMiddleWares(httpServerCore, request, response);
+
+      //Then
+      Assert.Contains(StatusCode._206, response.Headers);
+      Assert.Equal(expected, response.BodyBytes);
+    }
+
+         [Fact]
+    public void Range_No_Start_To_End_Greater_Than_Content()
+    {
+      //Given
+      var httpServerCore = new HttpServerCore(_staticPath);
+      var response = new Response();
+      string range = "bytes=-78";
+      string path = "/partial_content.txt";
+      var request = new Request(RequestFixtures.SampleRange("GET", path, range));
+      request.App.StaticPath = _staticPath;
+
+      string fileContents = "This is a file that contains text to read part of in order to fulfill a 206.\n";
+      Byte[] contentBytes = System.Text.Encoding.ASCII.GetBytes(fileContents);
+      Index start = 0;
+      Index end = 77;
+      var expected = contentBytes[start..end];
+
+      //When
+      Helper.processMiddleWares(httpServerCore, request, response);
+
+      //Then
+      Assert.Contains(StatusCode._206, response.Headers);
+      Assert.Equal(expected, response.BodyBytes);
+    }
+
+          [Fact]
+    public void Range_Start_Greater_Than_End()
+    {
+      //Given
+      var httpServerCore = new HttpServerCore(_staticPath);
+      var response = new Response();
+      string range = "bytes=10-0";
+      string path = "/partial_content.txt";
+      var request = new Request(RequestFixtures.SampleRange("GET", path, range));
+      request.App.StaticPath = _staticPath;
+
+      string fileContents = "This is a file that contains text to read part of in order to fulfill a 206.\n";
+      Byte[] contentBytes = System.Text.Encoding.ASCII.GetBytes(fileContents);
+      Index start = 0;
+      Index end = 77;
+      var expected = contentBytes[start..end];
+
+      //When
+      Helper.processMiddleWares(httpServerCore, request, response);
+
+      //Then
+      Assert.Contains(StatusCode._416, response.Headers);
+      Assert.Equal(expected, response.BodyBytes);
+    }
+
+           [Fact]
+    public void Request_With_Range_Returns_Content_Range_In_Response_Headers()
+    {
+      //Given
+      var httpServerCore = new HttpServerCore(_staticPath);
+      var response = new Response();
+      string range = "bytes=0-4";
+      string path = "/partial_content.txt";
+      var request = new Request(RequestFixtures.SampleRange("GET", path, range));
+      request.App.StaticPath = _staticPath;
+
+      string fileContents = "This is a file that contains text to read part of in order to fulfill a 206.\n";
+      Byte[] contentBytes = System.Text.Encoding.ASCII.GetBytes(fileContents);
+      Index start = 0;
+      Index end = 5;
+      var expected = contentBytes[start..end];
+
+      //When
+      Helper.processMiddleWares(httpServerCore, request, response);
+
+      //Then
+      string contentRange = "Content-Range: bytes 0-4/77";
+      Assert.Contains(StatusCode._206, response.Headers);
+      Assert.Contains(contentRange, response.Headers);
       Assert.Equal(expected, response.BodyBytes);
     }
 

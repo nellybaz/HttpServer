@@ -18,6 +18,8 @@ namespace HttpServer.Library
 
     public static readonly string _412 = "412 Precondition Failed";
 
+    public static readonly string _416 = "416 Range Not Satisfiable";
+
     public static readonly string _418 = "418 I'm a teapot";
     public static readonly string _405 = "405 Method Not Allowed";
     

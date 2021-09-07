@@ -17,7 +17,7 @@ namespace HttpServer.Library.CoreMiddlewares
         Byte[] byteData = File.ReadAllBytes(path);
         response.SetStatus(StatusCode._200);
         response.SetBody(byteData);
-        response.Mime = MimeType.GetMimeType(request.Url);
+        response.SetHeader(Response.Header.Content_Type, MimeType.GetMimeType(request.Url));
         request.IsPath = true;
       }
       catch (System.Exception)

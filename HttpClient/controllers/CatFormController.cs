@@ -15,7 +15,7 @@ using HttpServer.Library;
         data.Add(key, value);
         response.SetStatus(StatusCode._201);
         string location = request.Url + "/" + key;
-        response.SetLocation(location);
+        response.SetHeader(Response.Header.Location, location);
       }
 
       if (request.Method == RequestMethod.GET && request.Url.Contains("data"))

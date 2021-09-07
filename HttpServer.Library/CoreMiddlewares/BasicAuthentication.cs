@@ -38,7 +38,7 @@ namespace HttpServer.Library.CoreMiddlewares
 
         try
         {
-          response.Authenticate = true;
+          response.Authenticate(true);
           string authenticatedPayload = request.Authorization.Split(" ")[1];
 
           if (base64 != authenticatedPayload)

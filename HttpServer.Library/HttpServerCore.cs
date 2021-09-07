@@ -118,7 +118,7 @@ namespace HttpServer.Library
             }
           }
         }
-
+        if(!this.routes.ContainsKey(route)) return;
         Dictionary<string, dynamic> routeDetails = this.routes[route];
         string routeMethod = routeDetails["method"];
         if (routeMethod == "*" || request.Method == routeMethod)

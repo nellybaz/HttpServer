@@ -15,7 +15,7 @@ public class LogsController : Controller
           response.SetStatus(StatusCode._200);
         }
         response.SetBody(request.Method + " " + request.Url + " " + response.Version);
-        response.Mime = MimeType.PlainText;
+        response.SetHeader(Response.Header.Content_Type, MimeType.PlainText);
         response.Halt();
       }
   }
